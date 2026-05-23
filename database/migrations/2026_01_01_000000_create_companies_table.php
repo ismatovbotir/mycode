@@ -12,10 +12,10 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('companies', function (Blueprint $table) {
-            $table->id();
-            $table->uuid('uuid')->unique()->default(DB::raw('(UUID())'));
+            $table->uuid('id')->primary();
+
             $table->string('name');
-            $table->string('inn', 20)->unique();
+            $table->string('inn', 20)->nullable()->unique();
             $table->string('email')->unique();
             $table->string('phone', 20)->nullable();
             $table->string('website')->nullable();

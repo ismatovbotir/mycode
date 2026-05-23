@@ -17,11 +17,19 @@ class CompanyController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255'],
-            'phone' => ['nullable', 'string', 'max:20'],
+            'country_code' => ['nullable', 'string', 'regex:/^\+\d{1,3}$/'],
+            'phone' => ['nullable', 'string', 'regex:/^\d{9,}$/', 'max:20'],
             'website' => ['nullable', 'url', 'max:255'],
             'timezone' => ['required', 'timezone'],
         ]);
+
+        if ($validated['country_code'] && $validated['phone']) {
+            $validated['phone'] = $validated['country_code'] . $validated['phone'];
+        } elseif (!$validated['phone']) {
+            $validated['phone'] = null;
+        }
+
+        unset($validated['country_code']);
 
         auth()->user()->company->update($validated);
 

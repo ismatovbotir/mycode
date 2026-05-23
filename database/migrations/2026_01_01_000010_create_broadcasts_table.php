@@ -12,10 +12,9 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('broadcasts', function (Blueprint $table) {
-            $table->id();
-            $table->uuid('uuid')->unique()->default(DB::raw('(UUID())'));
-            $table->foreignId('bot_id')->constrained('bots')->onDelete('cascade');
-            $table->foreignId('group_id')->nullable()->constrained('client_groups')->onDelete('set null');
+            $table->uuid('id')->primary();
+            $table->foreignUuid('bot_id')->constrained('bots')->onDelete('cascade');
+            $table->foreignUuid('group_id')->nullable()->constrained('client_groups')->onDelete('set null');
             $table->text('message');
             $table->timestamp('scheduled_at')->nullable();
             $table->enum('status', ['draft', 'scheduled', 'sending', 'sent'])->default('draft');

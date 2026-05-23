@@ -13,8 +13,8 @@ class CreateBotModal extends Component
 
     public string $name = '';
     public string $tg_bot_token = '';
-    public array $greeting = ['uz' => '', 'ru' => '', 'tj' => '', 'kk' => ''];
-    public array $about = ['uz' => '', 'ru' => '', 'tj' => '', 'kk' => ''];
+    public array $greeting = ['uz' => '', 'kk' => '', 'kz' => '', 'tj' => '', 'ru' => ''];
+    public array $about = ['uz' => '', 'kk' => '', 'kz' => '', 'tj' => '', 'ru' => ''];
     public string $currentLang = 'uz';
     public bool $requires_admin_approval = false;
 
@@ -44,7 +44,7 @@ class CreateBotModal extends Component
         ]);
 
         // Fill missing languages with first language (uz)
-        foreach (['ru', 'tj', 'kk'] as $lang) {
+        foreach (['kk', 'kz', 'tj', 'ru'] as $lang) {
             if (empty($this->greeting[$lang])) {
                 $this->greeting[$lang] = $this->greeting['uz'];
             }
@@ -72,23 +72,27 @@ class CreateBotModal extends Component
         // Set Telegram webhook
         try {
             $telegramService = new TelegramService();
-            $webhookUrl = route('telegram.webhook', ['bot' => $bot->uuid], true);
+            $webhookUrl = route('telegram.webhook', ['bot' => $bot->id], true);
             $telegramService->setWebhook(decrypt($bot->tg_bot_token), $webhookUrl);
+            $bot->update(['webhook_status' => 'success']);
         } catch (\Exception $e) {
             \Log::error('Failed to set webhook', ['bot_id' => $bot->id, 'error' => $e->getMessage()]);
+            $bot->update(['webhook_status' => 'failed']);
         }
 
         $this->dispatch('bot-created');
         $this->closeModal();
         session()->flash('success', 'Bot created successfully! Webhook set up completed.');
+
+        return $this->redirect(route('bots.index'), navigate: true);
     }
 
     private function resetForm()
     {
         $this->name = '';
         $this->tg_bot_token = '';
-        $this->greeting = ['uz' => '', 'ru' => '', 'tj' => '', 'kk' => ''];
-        $this->about = ['uz' => '', 'ru' => '', 'tj' => '', 'kk' => ''];
+        $this->greeting = ['uz' => '', 'kk' => '', 'kz' => '', 'tj' => '', 'ru' => ''];
+        $this->about = ['uz' => '', 'kk' => '', 'kz' => '', 'tj' => '', 'ru' => ''];
         $this->currentLang = 'uz';
         $this->requires_admin_approval = false;
     }

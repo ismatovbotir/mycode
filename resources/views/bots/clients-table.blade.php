@@ -48,13 +48,13 @@
                         @if(isset($bot) && $bot->requires_admin_approval && !$client->approved)
                             <td class="px-4 py-3">
                                 <div class="flex gap-1">
-                                    <form method="POST" action="{{ route('bots.clients.approve', [$bot->uuid, $client->uuid]) }}" class="inline">
+                                    <form method="POST" action="{{ route('bots.clients.approve', [$bot, $client]) }}" class="inline">
                                         @csrf
                                         <button type="submit" class="text-xs text-green-600 px-2 py-1 rounded border border-green-200 hover:bg-green-50 transition-colors">
                                             Approve
                                         </button>
                                     </form>
-                                    <form method="POST" action="{{ route('bots.clients.reject', [$bot->uuid, $client->uuid]) }}" class="inline" onsubmit="return confirm('Are you sure?')">
+                                    <form method="POST" action="{{ route('bots.clients.reject', [$bot, $client]) }}" class="inline" onsubmit="return confirm('Are you sure?')">
                                         @csrf
                                         <button type="submit" class="text-xs text-red-600 px-2 py-1 rounded border border-red-200 hover:bg-red-50 transition-colors">
                                             Reject

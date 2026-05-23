@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Bot;
+use App\Models\BotClient;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -29,17 +30,19 @@ class BotController extends Controller
             'requires_admin_approval' => ['boolean'],
             'greeting' => ['required', 'array'],
             'greeting.uz' => ['required', 'string', 'max:500'],
-            'greeting.ru' => ['nullable', 'string', 'max:500'],
-            'greeting.tj' => ['nullable', 'string', 'max:500'],
             'greeting.kk' => ['nullable', 'string', 'max:500'],
+            'greeting.kz' => ['nullable', 'string', 'max:500'],
+            'greeting.tj' => ['nullable', 'string', 'max:500'],
+            'greeting.ru' => ['nullable', 'string', 'max:500'],
             'about' => ['required', 'array'],
             'about.uz' => ['required', 'string', 'max:1000'],
-            'about.ru' => ['nullable', 'string', 'max:1000'],
-            'about.tj' => ['nullable', 'string', 'max:1000'],
             'about.kk' => ['nullable', 'string', 'max:1000'],
+            'about.kz' => ['nullable', 'string', 'max:1000'],
+            'about.tj' => ['nullable', 'string', 'max:1000'],
+            'about.ru' => ['nullable', 'string', 'max:1000'],
         ]);
 
-        foreach (['ru', 'tj', 'kk'] as $lang) {
+        foreach (['kk', 'kz', 'tj', 'ru'] as $lang) {
             if (empty($validated['greeting'][$lang])) {
                 $validated['greeting'][$lang] = $validated['greeting']['uz'];
             }
@@ -76,12 +79,10 @@ class BotController extends Controller
         return view('bots.clients', compact('bot', 'clients'));
     }
 
-    public function approveClient($botUuid, $clientUuid)
+    public function approveClient(Bot $bot, BotClient $client)
     {
-        $bot = Bot::where('uuid', $botUuid)->firstOrFail();
         $this->authorize('update', $bot);
 
-        $client = $bot->clients()->where('uuid', $clientUuid)->firstOrFail();
         $client->update([
             'approved' => true,
             'approved_at' => now(),
@@ -90,12 +91,9 @@ class BotController extends Controller
         return redirect()->back()->with('success', 'Client approved!');
     }
 
-    public function rejectClient($botUuid, $clientUuid)
+    public function rejectClient(Bot $bot, BotClient $client)
     {
-        $bot = Bot::where('uuid', $botUuid)->firstOrFail();
         $this->authorize('update', $bot);
-
-        $client = $bot->clients()->where('uuid', $clientUuid)->firstOrFail();
         $client->delete();
 
         return redirect()->back()->with('success', 'Client rejected and removed!');

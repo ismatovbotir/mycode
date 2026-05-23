@@ -3,28 +3,34 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['uuid', 'company_id', 'type', 'credentials', 'settings', 'is_active'])]
+#[Fillable(['bot_id', 'type', 'credentials', 'settings', 'is_active'])]
 class Integration extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUuids;
 
     public function getRouteKeyName(): string
     {
-        return 'uuid';
+        return 'id';
     }
 
     protected $casts = [
-        'credentials' => 'encrypted:array',
+        'credentials' => 'encrypted:json',
         'settings' => 'array',
         'is_active' => 'boolean',
     ];
 
+    public function bot(): BelongsTo
+    {
+        return $this->belongsTo(Bot::class);
+    }
+
     public function company(): BelongsTo
     {
-        return $this->belongsTo(Company::class);
+        return $this->bot->company();
     }
 }

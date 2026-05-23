@@ -12,8 +12,8 @@ return new class extends Migration {
     {
         Schema::create('client_group_members', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('group_id')->constrained('client_groups')->onDelete('cascade');
-            $table->foreignId('bot_client_id')->constrained('bot_clients')->onDelete('cascade');
+            $table->foreignUuid('group_id')->constrained('client_groups')->onDelete('cascade');
+            $table->foreignUuid('bot_client_id')->constrained('bot_clients')->onDelete('cascade');
             $table->timestamps();
             $table->unique(['group_id', 'bot_client_id']);
         });

@@ -12,11 +12,12 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('client_groups', function (Blueprint $table) {
-            $table->id();
-            $table->uuid('uuid')->unique()->default(DB::raw('(UUID())'));
-            $table->foreignId('bot_id')->constrained('bots')->onDelete('cascade');
+            $table->uuid('id')->primary();
+            $table->foreignUuid('company_id')->constrained('companies')->onDelete('cascade');
+            $table->foreignUuid('bot_id')->constrained('bots')->onDelete('cascade');
             $table->string('name');
             $table->timestamps();
+            $table->unique(['company_id', 'bot_id', 'name']);
         });
     }
 

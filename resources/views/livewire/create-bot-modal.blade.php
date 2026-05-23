@@ -8,7 +8,7 @@
     <!-- Modal -->
     @if($isOpen)
         <div class="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" wire:click="closeModal">
-            <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto" @click.stop>
+            <div class="bg-white rounded-2xl shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto" @click.stop>
                 <!-- Header -->
                 <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white">
                     <h2 class="font-semibold">Create Bot</h2>
@@ -65,27 +65,30 @@
 
                     <!-- Languages -->
                     <div>
-                        <label class="block text-xs font-medium text-gray-600 mb-2">Greeting & About (4 Languages)</label>
+                        <label class="block text-xs font-medium text-gray-600 mb-2">Greeting & About (5 Languages)</label>
 
                         <!-- Language Tabs -->
-                        <div class="flex gap-1 mb-3 border-b border-gray-100">
-                            @foreach(['uz', 'ru', 'tj', 'kk'] as $lang)
+                        <div class="flex gap-1 mb-3 border-b border-gray-100 overflow-x-auto">
+                            @foreach(['uz', 'kk', 'kz', 'tj', 'ru'] as $lang)
                                 <button
                                     type="button"
                                     wire:click="switchLang('{{ $lang }}')"
-                                    class="lang-tab text-xs px-3 py-2 font-medium transition-colors {{ $currentLang === $lang ? 'text-brand-600 border-b-2 border-brand-600' : 'text-gray-400 border-b-2 border-transparent hover:text-gray-600' }}">
+                                    class="lang-tab text-xs px-3 py-2 font-medium transition-colors whitespace-nowrap {{ $currentLang === $lang ? 'text-brand-600 border-b-2 border-brand-600' : 'text-gray-400 border-b-2 border-transparent hover:text-gray-600' }}">
                                     @switch($lang)
                                         @case('uz')
                                             🇺🇿 O'z
                                             @break
-                                        @case('ru')
-                                            🇷🇺 Рус
+                                        @case('kk')
+                                            🏳️ Қар
+                                            @break
+                                        @case('kz')
+                                            🇰🇿 Қаз
                                             @break
                                         @case('tj')
                                             🇹🇯 Тоҷ
                                             @break
-                                        @case('kk')
-                                            🏳️ Қар
+                                        @case('ru')
+                                            🇷🇺 Рус
                                             @break
                                     @endswitch
                                 </button>
@@ -94,31 +97,70 @@
 
                         <!-- Language Content -->
                         <div class="space-y-2">
-                            <div>
-                                <label class="block text-xs font-medium text-gray-600 mb-1.5">Greeting</label>
-                                <textarea
-                                    wire:model="greeting.{{ $currentLang }}"
-                                    placeholder="Greeting..."
-                                    rows="2"
-                                    required
-                                    class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500 resize-none"></textarea>
-                                @error("greeting.{$currentLang}")
-                                    <span class="text-xs text-red-600 mt-1">{{ $message }}</span>
-                                @enderror
-                            </div>
+                            @php
+                                $samples = [
+                                    'uz' => [
+                                        'greeting' => "Assalomu alaikum! 👋\n\nBo'timizga xush kelibsiz. Men sizning savollarga javob berishga va kerakli ma'lumotlarni berish uchun tayyorman.",
+                                        'about' => "🤖 Avtomatik xizmat boti\n\n✅ Tez javoblar\n✅ 24/7 mavjud\n✅ Oson foydalanish\n\nBizning bilan bog'lanish uchun /start bosing."
+                                    ],
+                                    'kk' => [
+                                        'greeting' => "Assalomu alaikum! 👋\n\nBiziń botına xosh kelibeniz. Men sizdi qollanyw hám kerekli informatsiyanı beriwde tolıq dáyin.",
+                                        'about' => "🤖 Avtomatik qyzmet boti\n\n✅ Tez jawaplar\n✅ 24/7 mavjud\n✅ Oson paidalanıw\n\nBastaw ushın /start basıń."
+                                    ],
+                                    'kz' => [
+                                        'greeting' => "Сәлеметсіз бе! 👋\n\nБотымызға қош келдіңіз. Мен сізге көмектесуге және қажетті ақпаратты беруге дайынмын.",
+                                        'about' => "🤖 Автоматтық қызмет боты\n\n✅ Жылдам жауап\n✅ 24/7 қол жетімді\n✅ Оңай пайдалану\n\nБастау uchun /start басыңыз."
+                                    ],
+                                    'tj' => [
+                                        'greeting' => "Assalom! 👋\n\nБа ботҳо хуш омадед. Ман барои ҷавобӣ ба саволҳо ва намудани иттилоотҳои зарурӣ барзамин устодам.",
+                                        'about' => "🤖 Ботҳои хидматҳои автоматӣ\n\n✅ Ҷавобҳои зуд\n✅ 24/7 мавҷуд\n✅ Қаблӣ истифода бурдан\n\nБарои оғоз /start зан занед."
+                                    ],
+                                    'ru' => [
+                                        'greeting' => "Добро пожаловать! 👋\n\nВы попали на нашего помощника. Я готов ответить на ваши вопросы и предоставить необходимую информацию.",
+                                        'about' => "🤖 Автоматический бот поддержки\n\n✅ Быстрые ответы\n✅ Доступен 24/7\n✅ Легко использовать\n\nНажмите /start чтобы начать."
+                                    ]
+                                ];
+                            @endphp
 
-                            <div>
-                                <label class="block text-xs font-medium text-gray-600 mb-1.5">About</label>
-                                <textarea
-                                    wire:model="about.{{ $currentLang }}"
-                                    placeholder="About..."
-                                    rows="2"
-                                    required
-                                    class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500 resize-none"></textarea>
-                                @error("about.{$currentLang}")
-                                    <span class="text-xs text-red-600 mt-1">{{ $message }}</span>
-                                @enderror
-                            </div>
+                            @foreach(['uz', 'kk', 'kz', 'tj', 'ru'] as $lang)
+                                @if($currentLang === $lang)
+                                    <div>
+                                        <div class="flex items-center justify-between mb-1.5">
+                                            <label class="block text-xs font-medium text-gray-600">Greeting</label>
+                                            <button type="button" wire:click="$set('greeting.{{ $lang }}', '{{ addslashes($samples[$lang]['greeting']) }}')" class="text-xs text-brand-600 hover:text-brand-700 font-medium">
+                                                Load Sample
+                                            </button>
+                                        </div>
+                                        <textarea
+                                            wire:model.live="greeting.{{ $lang }}"
+                                            rows="4"
+                                            required
+                                            class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500 resize-none overflow-y-auto max-h-32"></textarea>
+                                        <p class="text-xs text-gray-400 mt-1">Sample: {{ substr($samples[$lang]['greeting'], 0, 60) }}...</p>
+                                        @error("greeting.{$lang}")
+                                            <span class="text-xs text-red-600 mt-1">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+
+                                    <div>
+                                        <div class="flex items-center justify-between mb-1.5">
+                                            <label class="block text-xs font-medium text-gray-600">About</label>
+                                            <button type="button" wire:click="$set('about.{{ $lang }}', '{{ addslashes($samples[$lang]['about']) }}')" class="text-xs text-brand-600 hover:text-brand-700 font-medium">
+                                                Load Sample
+                                            </button>
+                                        </div>
+                                        <textarea
+                                            wire:model.live="about.{{ $lang }}"
+                                            rows="4"
+                                            required
+                                            class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500 resize-none overflow-y-auto max-h-32"></textarea>
+                                        <p class="text-xs text-gray-400 mt-1">Sample: {{ substr($samples[$lang]['about'], 0, 60) }}...</p>
+                                        @error("about.{$lang}")
+                                            <span class="text-xs text-red-600 mt-1">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                @endif
+                            @endforeach
                         </div>
                     </div>
                 </form>

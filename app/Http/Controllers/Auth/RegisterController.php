@@ -7,7 +7,6 @@ use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
 
@@ -31,13 +30,13 @@ class RegisterController
             'phone' => ['required', 'string', 'regex:/^\d{9,}$/', 'max:20'],
         ]);
 
-        $validated['phone'] = $validated['country_code'] . $validated['phone'];
+        $phone = $validated['country_code'] . $validated['phone'];
 
         $company = Company::create([
-            'uuid' => Str::uuid(),
             'name' => $validated['company_name'],
             'inn' => $validated['inn'],
             'email' => $validated['email'],
+            'phone' => $phone,
             'timezone' => 'Asia/Tashkent',
         ]);
 
@@ -47,7 +46,7 @@ class RegisterController
             'email' => $validated['email'],
             'password' => $validated['password'],
             'lang' => $validated['lang'] ?? 'uz',
-            'phone' => $validated['phone'],
+            'phone' => $phone,
             'role' => 'admin',
         ]);
 

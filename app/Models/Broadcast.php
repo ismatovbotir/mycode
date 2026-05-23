@@ -6,25 +6,24 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['uuid', 'bot_id', 'group_id', 'message', 'scheduled_at', 'status'])]
+#[Fillable(['bot_id', 'group_id', 'message', 'scheduled_at', 'status'])]
 class Broadcast extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUuids;
 
     protected $casts = [
         'scheduled_at' => 'datetime',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
     ];
 
     public function getRouteKeyName(): string
     {
-        return 'uuid';
+        return 'id';
     }
 
     public function bot(): BelongsTo

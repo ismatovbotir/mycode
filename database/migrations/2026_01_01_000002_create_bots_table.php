@@ -12,11 +12,12 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('bots', function (Blueprint $table) {
-            $table->id();
-            $table->uuid('uuid')->unique()->default(DB::raw('(UUID())'));
-            $table->foreignId('company_id')->constrained('companies')->onDelete('cascade');
+            $table->uuid('id')->primary();
+
+            $table->foreignUuid('company_id')->constrained('companies')->onDelete('cascade');
             $table->string('name');
             $table->text('tg_bot_token');
+            $table->enum('webhook_status', ['pending', 'success', 'failed'])->default('pending');
             $table->uuid('webhook_secret');
             $table->json('content')->nullable();
             $table->boolean('is_active')->default(true);

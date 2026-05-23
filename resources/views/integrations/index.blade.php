@@ -5,10 +5,10 @@
     <!-- Header -->
     <div class="mb-6 flex items-center justify-between">
         <div>
-            <h1 class="text-2xl font-semibold">Integrations</h1>
-            <p class="text-sm text-gray-500 mt-1">Connect external services like МойСклад</p>
+            <h1 class="text-2xl font-semibold">{{ $bot->name }} - Integrations</h1>
+            <p class="text-sm text-gray-500 mt-1">Connect external services to this bot</p>
         </div>
-        <livewire:create-integration-modal />
+        <livewire:create-integration-modal :bot="$bot" :key="'create-int-'.$bot->id" />
     </div>
 
     @if(session('success'))
@@ -33,7 +33,7 @@
                             </div>
                             <p class="text-xs text-gray-500">Added {{ $integration->created_at->diffForHumans() }}</p>
                         </div>
-                        <form method="POST" action="{{ route('integrations.destroy', $integration->uuid) }}" onsubmit="return confirm('Are you sure?')">
+                        <form method="POST" action="{{ route('integrations.destroy', [$bot, $integration]) }}" onsubmit="return confirm('Are you sure?')">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="text-xs text-red-600 px-3 py-1.5 rounded-lg border border-red-200 hover:bg-red-50 transition-colors">
@@ -78,8 +78,8 @@
                 </svg>
             </div>
             <h3 class="text-sm font-semibold text-gray-900 mb-1">No integrations yet</h3>
-            <p class="text-xs text-gray-500 mb-4">Connect external services to your bots</p>
-            <livewire:create-integration-modal />
+            <p class="text-xs text-gray-500 mb-4">Connect external services to this bot</p>
+            <livewire:create-integration-modal :bot="$bot" :key="'create-int-'.$bot->id" />
         </div>
     @endif
 </div>

@@ -12,8 +12,8 @@ return new class extends Migration {
     {
         Schema::create('bot_event_templates', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('bot_id')->constrained('bots')->onDelete('cascade');
-            $table->enum('event_type', ['supply', 'demand', 'paymentin', 'paymentout', 'salesreturn']);
+            $table->foreignUuid('bot_id')->constrained('bots')->onDelete('cascade');
+            $table->string('event_type');
             $table->json('messages');
             $table->timestamps();
             $table->unique(['bot_id', 'event_type']);

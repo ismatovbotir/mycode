@@ -3,18 +3,19 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['uuid', 'bot_id', 'bot_client_id', 'broadcast_id', 'message', 'tg_status', 'sent_at'])]
+#[Fillable(['bot_id', 'bot_client_id', 'broadcast_id', 'message', 'tg_status', 'sent_at'])]
 class Notification extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUuids;
 
     public function getRouteKeyName(): string
     {
-        return 'uuid';
+        return 'id';
     }
 
     protected $casts = [

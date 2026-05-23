@@ -3,19 +3,20 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['uuid', 'company_id', 'name', 'tg_bot_token', 'webhook_secret', 'content', 'is_active', 'requires_admin_approval'])]
+#[Fillable(['company_id', 'name', 'tg_bot_token', 'webhook_secret', 'webhook_status', 'content', 'is_active', 'requires_admin_approval'])]
 class Bot extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUuids;
 
     public function getRouteKeyName(): string
     {
-        return 'uuid';
+        return 'id';
     }
 
     protected $casts = [
@@ -58,5 +59,10 @@ class Bot extends Model
     public function groups(): HasMany
     {
         return $this->hasMany(ClientGroup::class);
+    }
+
+    public function integrations(): HasMany
+    {
+        return $this->hasMany(Integration::class);
     }
 }

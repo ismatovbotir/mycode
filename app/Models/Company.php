@@ -3,18 +3,19 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['uuid', 'name', 'inn', 'email', 'phone', 'website', 'timezone', 'status', 'plan'])]
+#[Fillable(['name', 'inn', 'email', 'phone', 'website', 'timezone', 'status', 'plan'])]
 class Company extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUuids;
 
     public function getRouteKeyName(): string
     {
-        return 'uuid';
+        return 'id';
     }
 
     public function users(): HasMany
@@ -30,6 +31,11 @@ class Company extends Model
     public function integrations(): HasMany
     {
         return $this->hasMany(Integration::class);
+    }
+
+    public function groups(): HasMany
+    {
+        return $this->hasMany(ClientGroup::class);
     }
 
     public function owner(): \Illuminate\Database\Eloquent\Relations\HasOne

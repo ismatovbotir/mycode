@@ -33,11 +33,8 @@
                 <div class="mt-8">
                     <h2 class="text-xl font-bold text-gray-900 mb-4">Quick Actions</h2>
                     <div class="flex space-x-4">
-                        <a href="{{ route('bots.create') }}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                            Create Bot
-                        </a>
-                        <a href="{{ route('integrations.create') }}" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
-                            Add Integration
+                        <a href="{{ route('bots.index') }}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                            Manage Bots
                         </a>
                     </div>
                 </div>
@@ -48,12 +45,15 @@
                         <div class="space-y-4">
                             @foreach (auth()->user()->company->bots as $bot)
                                 <div class="bg-gray-50 p-4 rounded-lg flex justify-between items-center">
-                                    <div>
+                                    <div class="flex-1">
                                         <h3 class="font-semibold text-gray-900">{{ $bot->name }}</h3>
-                                        <p class="text-sm text-gray-600">{{ $bot->clients->count() }} clients</p>
+                                        <div class="flex items-center gap-4 mt-1">
+                                            <p class="text-sm text-gray-600">{{ $bot->clients->count() }} clients</p>
+                                            <livewire:set-webhook-button :bot="$bot" :key="'webhook-'.$bot->id" />
+                                        </div>
                                     </div>
                                     <div class="flex space-x-2">
-                                        <a href="{{ route('bots.show', $bot->uuid) }}" class="px-3 py-1 bg-blue-100 text-blue-600 rounded hover:bg-blue-200 text-sm">
+                                        <a href="{{ route('bots.show', $bot) }}" class="px-3 py-1 bg-blue-100 text-blue-600 rounded hover:bg-blue-200 text-sm">
                                             View
                                         </a>
                                     </div>

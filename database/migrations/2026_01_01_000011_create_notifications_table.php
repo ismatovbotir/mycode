@@ -12,11 +12,10 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('notifications', function (Blueprint $table) {
-            $table->id();
-            $table->uuid('uuid')->unique()->default(DB::raw('(UUID())'));
-            $table->foreignId('bot_id')->constrained('bots')->onDelete('cascade');
-            $table->foreignId('bot_client_id')->constrained('bot_clients')->onDelete('cascade');
-            $table->foreignId('broadcast_id')->nullable()->constrained('broadcasts')->onDelete('set null');
+            $table->uuid('id')->primary();
+            $table->foreignUuid('bot_id')->constrained('bots')->onDelete('cascade');
+            $table->foreignUuid('bot_client_id')->constrained('bot_clients')->onDelete('cascade');
+            $table->foreignUuid('broadcast_id')->nullable()->constrained('broadcasts')->onDelete('set null');
             $table->text('message');
             $table->enum('tg_status', ['queued', 'sent', 'failed'])->default('queued');
             $table->timestamp('sent_at')->nullable();

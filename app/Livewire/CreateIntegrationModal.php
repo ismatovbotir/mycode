@@ -2,13 +2,14 @@
 
 namespace App\Livewire;
 
+use App\Models\Bot;
 use App\Models\Integration;
 use App\Services\MoySkladService;
-use Illuminate\Support\Str;
 use Livewire\Component;
 
 class CreateIntegrationModal extends Component
 {
+    public Bot $bot;
     public bool $isOpen = false;
     public string $type = 'moisklad';
     public string $moisklad_token = '';
@@ -36,8 +37,12 @@ class CreateIntegrationModal extends Component
 
         try {
             $service = new MoySkladService($this->moisklad_token);
-            $this->test_message = '✓ Connection successful!';
-            session()->flash('success', 'MoySklad token is valid!');
+            if ($service->testConnection()) {
+                $this->test_message = '✓ Connection successful!';
+                session()->flash('success', 'МойСклад token is valid!');
+            } else {
+                $this->test_message = '✗ Invalid token or API error';
+            }
         } catch (\Exception $e) {
             $this->test_message = '✗ Connection failed: ' . $e->getMessage();
         } finally {
@@ -47,17 +52,18 @@ class CreateIntegrationModal extends Component
 
     public function save()
     {
+        abort_if(!auth()->user()->can('update', $this->bot), 403);
+
         $this->validate([
             'type' => 'required|in:moisklad',
             'moisklad_token' => 'required|string|min:10',
         ]);
 
         Integration::create([
-            'uuid' => Str::uuid(),
-            'company_id' => auth()->user()->company_id,
+            'bot_id' => $this->bot->id,
             'type' => $this->type,
             'credentials' => [
-                'token' => $this->moisklad_token,
+                'api_token' => encrypt($this->moisklad_token),
             ],
             'settings' => [],
             'is_active' => true,

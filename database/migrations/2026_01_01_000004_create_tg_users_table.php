@@ -12,9 +12,7 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('tg_users', function (Blueprint $table) {
-            $table->id();
-            $table->uuid('uuid')->unique()->default(DB::raw('(UUID())'));
-            $table->bigInteger('chat_id')->unique();
+            $table->string('id')->primary(); // Use Telegram user ID as primary key
             $table->string('phone', 20)->nullable();
             $table->string('first_name')->nullable();
             $table->string('last_name')->nullable();

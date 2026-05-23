@@ -13,12 +13,11 @@ return new class extends Migration {
     {
         Schema::create('webhook_events', function (Blueprint $table) {
             $table->id();
-            $table->uuid('uuid')->unique()->default(DB::raw('(UUID())'));
-            $table->foreignId('bot_id')->constrained('bots')->onDelete('cascade');
+            $table->foreignUuid('bot_id')->constrained('bots')->onDelete('cascade');
             $table->string('event_type');
             $table->json('payload');
             $table->enum('status', ['pending', 'processing', 'sent', 'failed'])->default('pending');
-            $table->foreignId('bot_client_id')->nullable()->constrained('bot_clients')->onDelete('set null');
+            $table->foreignUuid('bot_client_id')->nullable()->constrained('bot_clients')->onDelete('set null');
             $table->timestamps();
         });
     }

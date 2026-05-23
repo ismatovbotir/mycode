@@ -47,29 +47,44 @@
 
             <!-- Email -->
             <div>
-                <label for="email" class="block text-xs font-medium text-gray-600 mb-1.5">Email Address</label>
+                <label class="block text-xs font-medium text-gray-600 mb-1.5">Email Address</label>
                 <input
-                    id="email"
-                    name="email"
                     type="email"
-                    value="{{ old('email', $company->email) }}"
-                    required
-                    class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500"/>
-                @error('email')
-                    <span class="text-xs text-red-600 mt-1">{{ $message }}</span>
-                @enderror
+                    value="{{ $company->email }}"
+                    disabled
+                    class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2.5 bg-gray-50 text-gray-500"/>
+                <p class="text-xs text-gray-400 mt-1">Cannot be changed</p>
             </div>
 
             <!-- Phone -->
             <div>
-                <label for="phone" class="block text-xs font-medium text-gray-600 mb-1.5">Phone Number</label>
-                <input
-                    id="phone"
-                    name="phone"
-                    type="tel"
-                    value="{{ old('phone', $company->phone) }}"
-                    class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500"/>
+                <label class="block text-xs font-medium text-gray-600 mb-1.5">Mobile Number</label>
+                <div class="flex gap-2">
+                    <select
+                        name="country_code"
+                        class="w-24 text-sm border border-gray-200 rounded-lg px-2 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white">
+                        @php
+                            $phoneData = $company->phone ? preg_match('/^(\+\d{1,3})(.+)$/', $company->phone, $matches) ? $matches : [null, '+998', $company->phone] : [null, '+998', ''];
+                            $savedCountryCode = old('country_code', $phoneData[1] ?? '+998');
+                            $savedPhone = old('phone', $phoneData[2] ?? '');
+                        @endphp
+                        <option value="+998" {{ $savedCountryCode === '+998' ? 'selected' : '' }}>🇺🇿 +998</option>
+                        <option value="+7" {{ $savedCountryCode === '+7' ? 'selected' : '' }}>🇰🇿 +7</option>
+                        <option value="+992" {{ $savedCountryCode === '+992' ? 'selected' : '' }}>🇹🇯 +992</option>
+                        <option value="+7">🇷🇺 +7</option>
+                    </select>
+                    <input
+                        name="phone"
+                        type="tel"
+                        value="{{ $savedPhone }}"
+                        class="flex-1 text-sm border border-gray-200 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                        placeholder="901234567"
+                        pattern="[0-9]{9,}"/>
+                </div>
                 @error('phone')
+                    <span class="text-xs text-red-600 mt-1">{{ $message }}</span>
+                @enderror
+                @error('country_code')
                     <span class="text-xs text-red-600 mt-1">{{ $message }}</span>
                 @enderror
             </div>

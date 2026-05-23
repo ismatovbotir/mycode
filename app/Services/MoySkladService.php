@@ -59,6 +59,20 @@ class MoySkladService
         return $data['result'] ?? null;
     }
 
+    public function testConnection(): bool
+    {
+        $payload = [
+            'jsonrpc' => '2.0',
+            'method' => 'entity.customerorder.list',
+            'params' => ['limit' => 1],
+            'id' => uniqid(),
+        ];
+
+        $response = Http::withToken($this->token)->post($this->apiUrl, $payload);
+
+        return $response->ok() && !isset($response->json()['error']);
+    }
+
     private function normalizePhone(string $phone): string
     {
         return preg_replace('/\D/', '', $phone);

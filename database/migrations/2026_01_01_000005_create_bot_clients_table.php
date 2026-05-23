@@ -12,10 +12,11 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('bot_clients', function (Blueprint $table) {
-            $table->id();
-            $table->uuid('uuid')->unique()->default(DB::raw('(UUID())'));
-            $table->foreignId('bot_id')->constrained('bots')->onDelete('cascade');
-            $table->foreignId('tg_user_id')->constrained('tg_users')->onDelete('cascade');
+            $table->uuid('id')->primary();
+
+            $table->foreignUuid('bot_id')->constrained('bots')->onDelete('cascade');
+            $table->string('tg_user_id');
+            $table->foreign('tg_user_id')->references('id')->on('tg_users')->onDelete('cascade');
             $table->string('mySklad_id')->nullable();
             $table->boolean('matched')->default(false);
             $table->timestamp('matched_at')->nullable();

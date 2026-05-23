@@ -12,14 +12,17 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('integrations', function (Blueprint $table) {
-            $table->id();
-            $table->uuid('uuid')->unique()->default(DB::raw('(UUID())'));
-            $table->foreignId('company_id')->constrained('companies')->onDelete('cascade');
-            $table->enum('type', ['moisklad', 'bitrix', '1c'])->default('moisklad');
-            $table->json('credentials');
+            $table->uuid('id')->primary();
+
+            $table->foreignUuid('company_id')->constrained('companies')->onDelete('cascade');
+            $table->foreignUuid('bot_id')->after('company_id')->constrained('bots')->onDelete('cascade');
+
+            $table->enum('type', ['moysklad', 'bitrix', '1c'])->default('moysklad');
+            $table->text('credentials');
             $table->json('settings')->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamps();
+            $table->unique(['bot_id', 'type']);
         });
     }
 

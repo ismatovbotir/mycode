@@ -110,11 +110,7 @@
                             <option value="+998" selected>🇺🇿 +998</option>
                             <option value="+7">🇰🇿 +7</option>
                             <option value="+992">🇹🇯 +992</option>
-                            <option value="+375">🇧🇾 +375</option>
-                            <option value="+373">🇲🇩 +373</option>
-                            <option value="+380">🇺🇦 +380</option>
-                            <option value="+359">🇧🇬 +359</option>
-                            <option value="+386">🇸🇮 +386</option>
+                            <option value="+7">🇷🇺 +7</option>
                         </select>
                         <input
                             id="phone"

@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /admin
+Disallow: /superadmin
+Disallow: /api/
+
+Sitemap: https://mycode.uz/sitemap.xml

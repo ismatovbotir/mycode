@@ -8,7 +8,7 @@ class MoySkladService
 {
     private string $apiUrl = 'https://online.moysklad.ru/api/rpc/1.0';
 
-    public function __construct(private string $login, private string $password) {}
+    public function __construct(private string $token) {}
 
     public function findByPhone(string $phone): ?array
     {
@@ -24,7 +24,7 @@ class MoySkladService
             'id' => uniqid(),
         ];
 
-        $response = Http::withBasicAuth($this->login, $this->password)->post($this->apiUrl, $payload);
+        $response = Http::withToken($this->token)->post($this->apiUrl, $payload);
 
         if (!$response->ok()) {
             return null;
@@ -48,7 +48,7 @@ class MoySkladService
             'id' => uniqid(),
         ];
 
-        $response = Http::withBasicAuth($this->login, $this->password)->post($this->apiUrl, $payload);
+        $response = Http::withToken($this->token)->post($this->apiUrl, $payload);
 
         if (!$response->ok()) {
             return null;

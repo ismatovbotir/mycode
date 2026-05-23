@@ -72,7 +72,7 @@ class TelegramWebhookController
             "🇺🇿 O'zbek" => 'uz',
             '🇷🇺 Русский' => 'ru',
             '🇹🇯 Тоҷикӣ' => 'tj',
-            '🏳️ Қарақалпақ' => 'kk',
+            '🇺🇿 Qaraqalpaq' => 'kk',
         ];
 
         $lang = $langMap[$text] ?? 'ru';
@@ -130,8 +130,8 @@ class TelegramWebhookController
         $mySkladId = null;
 
         if ($integration && $integration->is_active) {
-            $apiToken = decrypt($integration->credentials['api_token'] ?? '');
-            $moySkladService = new MoySkladService($apiToken);
+            $token = decrypt($integration->credentials['token'] ?? '');
+            $moySkladService = new MoySkladService($token);
             $customer = $moySkladService->findByPhone($phone);
 
             if ($customer) {

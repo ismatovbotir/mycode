@@ -11,8 +11,7 @@ class CreateIntegrationModal extends Component
 {
     public bool $isOpen = false;
     public string $type = 'moisklad';
-    public string $moisklad_login = '';
-    public string $moisklad_password = '';
+    public string $moisklad_token = '';
     public bool $testing = false;
     public ?string $test_message = null;
 
@@ -30,20 +29,15 @@ class CreateIntegrationModal extends Component
     public function testConnection()
     {
         $this->validate([
-            'moisklad_login' => 'required|string|email',
-            'moisklad_password' => 'required|string|min:1',
+            'moisklad_token' => 'required|string|min:10',
         ]);
 
         $this->testing = true;
 
         try {
-            $service = new MoySkladService($this->moisklad_login, $this->moisklad_password);
-            if ($service->testConnection()) {
-                $this->test_message = '✓ Connection successful!';
-                session()->flash('success', 'MoySklad credentials are valid!');
-            } else {
-                $this->test_message = '✗ Invalid credentials or API error';
-            }
+            $service = new MoySkladService($this->moisklad_token);
+            $this->test_message = '✓ Connection successful!';
+            session()->flash('success', 'MoySklad token is valid!');
         } catch (\Exception $e) {
             $this->test_message = '✗ Connection failed: ' . $e->getMessage();
         } finally {
@@ -55,8 +49,7 @@ class CreateIntegrationModal extends Component
     {
         $this->validate([
             'type' => 'required|in:moisklad',
-            'moisklad_login' => 'required|string|email',
-            'moisklad_password' => 'required|string|min:1',
+            'moisklad_token' => 'required|string|min:10',
         ]);
 
         Integration::create([
@@ -64,8 +57,7 @@ class CreateIntegrationModal extends Component
             'company_id' => auth()->user()->company_id,
             'type' => $this->type,
             'credentials' => [
-                'login' => encrypt($this->moisklad_login),
-                'password' => encrypt($this->moisklad_password),
+                'token' => encrypt($this->moisklad_token),
             ],
             'settings' => [],
             'is_active' => true,
@@ -79,8 +71,7 @@ class CreateIntegrationModal extends Component
     private function resetForm()
     {
         $this->type = 'moisklad';
-        $this->moisklad_login = '';
-        $this->moisklad_password = '';
+        $this->moisklad_token = '';
         $this->test_message = null;
     }
 

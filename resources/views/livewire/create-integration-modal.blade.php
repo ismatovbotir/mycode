@@ -33,36 +33,22 @@
                         @enderror
                     </div>
 
-                    <!-- Credentials Info -->
+                    <!-- Token Info -->
                     <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 text-xs text-blue-800">
-                        <p class="font-medium mb-1">🔐 МойСклад Credentials</p>
-                        <p>Enter your МойСклад account login (email) and password. We'll encrypt them securely.</p>
+                        <p class="font-medium mb-1">🔐 МойСклад Bearer Token</p>
+                        <p>Get your API token from МойСклад Settings → API → Create Token. We'll encrypt it securely.</p>
                     </div>
 
-                    <!-- Login -->
+                    <!-- Bearer Token -->
                     <div>
-                        <label class="block text-xs font-medium text-gray-600 mb-1.5">МойСклад Email/Login</label>
-                        <input
-                            type="email"
-                            wire:model="moisklad_login"
-                            placeholder="your@email.com"
-                            required
-                            class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500"/>
-                        @error('moisklad_login')
-                            <span class="text-xs text-red-600 mt-1">{{ $message }}</span>
-                        @enderror
-                    </div>
-
-                    <!-- Password -->
-                    <div>
-                        <label class="block text-xs font-medium text-gray-600 mb-1.5">МойСклад Password</label>
+                        <label class="block text-xs font-medium text-gray-600 mb-1.5">API Bearer Token</label>
                         <input
                             type="password"
-                            wire:model="moisklad_password"
-                            placeholder="Enter your password"
+                            wire:model="moisklad_token"
+                            placeholder="Paste your МойСклад API token here"
                             required
                             class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500"/>
-                        @error('moisklad_password')
+                        @error('moisklad_token')
                             <span class="text-xs text-red-600 mt-1">{{ $message }}</span>
                         @enderror
                     </div>

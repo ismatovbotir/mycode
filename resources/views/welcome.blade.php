@@ -18,9 +18,9 @@
 
     <!-- Hreflang -->
     <link rel="alternate" hreflang="uz" href="https://mycode.uz/?lang=uz" />
-    <link rel="alternate" hreflang="kaa" href="https://mycode.uz/?lang=kaa" />
-    <link rel="alternate" hreflang="tg" href="https://mycode.uz/?lang=tj" />
     <link rel="alternate" hreflang="kk" href="https://mycode.uz/?lang=kk" />
+    <link rel="alternate" hreflang="tg" href="https://mycode.uz/?lang=tj" />
+    <link rel="alternate" hreflang="kz" href="https://mycode.uz/?lang=kz" />
     <link rel="alternate" hreflang="ru" href="https://mycode.uz/?lang=ru" />
     <link rel="alternate" hreflang="x-default" href="https://mycode.uz/" />
 
@@ -28,9 +28,9 @@
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="MyCode" />
     <meta property="og:locale" content="uz_UZ" />
-    <meta property="og:locale:alternate" content="kaa" />
+    <meta property="og:locale:alternate" content="kk_UZ" />
     <meta property="og:locale:alternate" content="tg_TJ" />
-    <meta property="og:locale:alternate" content="kk_KZ" />
+    <meta property="og:locale:alternate" content="kz_KZ" />
     <meta property="og:locale:alternate" content="ru_RU" />
     <meta property="og:url" content="https://mycode.uz/" />
     <meta property="og:title" content="MyCode · уведомления клиентов в Telegram" />
@@ -518,11 +518,11 @@
                             data-i18n="nav.lang">Язык</div>
                         <button class="lang-btn" data-lang-btn="uz"><span class="text-lg leading-none">🇺🇿</span>
                             O'zbek</button>
-                        <button class="lang-btn" data-lang-btn="kaa"><span class="text-lg leading-none">🏳️</span>
+                        <button class="lang-btn" data-lang-btn="kk"><span class="text-lg leading-none">🇺🇿</span>
                             Qaraqalpaq</button>
                         <button class="lang-btn" data-lang-btn="tj"><span class="text-lg leading-none">🇹🇯</span>
                             Тоҷикӣ</button>
-                        <button class="lang-btn" data-lang-btn="kk"><span class="text-lg leading-none">🇰🇿</span>
+                        <button class="lang-btn" data-lang-btn="kz"><span class="text-lg leading-none">🇰🇿</span>
                             Қазақша</button>
                         <button class="lang-btn" data-lang-btn="ru"><span class="text-lg leading-none">🇷🇺</span>
                             Русский</button>

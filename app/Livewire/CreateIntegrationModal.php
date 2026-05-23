@@ -57,7 +57,7 @@ class CreateIntegrationModal extends Component
             'company_id' => auth()->user()->company_id,
             'type' => $this->type,
             'credentials' => [
-                'token' => encrypt($this->moisklad_token),
+                'token' => $this->moisklad_token,
             ],
             'settings' => [],
             'is_active' => true,

@@ -130,7 +130,7 @@ class TelegramWebhookController
         $mySkladId = null;
 
         if ($integration && $integration->is_active) {
-            $token = decrypt($integration->credentials['token'] ?? '');
+            $token = $integration->credentials['token'] ?? '';
             $moySkladService = new MoySkladService($token);
             $customer = $moySkladService->findByPhone($phone);
 

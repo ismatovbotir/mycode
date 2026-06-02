@@ -23,7 +23,7 @@ return new class extends Migration {
             $table->enum('role', ['admin', 'super_admin'])->default('admin');
             $table->bigInteger('tg_chat_id')->nullable()->unique();
             $table->timestamp('tg_linked_at')->nullable();
-            $table->text('moysklad_token')->nullable();
+            $table->text('moysklad_token')->unique()->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

@@ -21,38 +21,38 @@
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
                 <!-- Tutorial (Left) -->
                 <div class="bg-white rounded-2xl shadow-xl p-8">
-                    <h2 class="text-2xl font-bold text-gray-900 mb-6">📋 How to Get Your Token</h2>
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6">📋 {{ __('How to Get Your Token') }}</h2>
 
                     <div class="space-y-6">
                         <div class="flex gap-4">
                             <div class="flex-shrink-0 w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center font-bold text-blue-600">1</div>
                             <div>
-                                <h3 class="font-semibold text-gray-900">Open МойСклад</h3>
-                                <p class="text-gray-600 text-sm mt-1">Go to moysklad.ru and log in to your account</p>
+                                <h3 class="font-semibold text-gray-900">{{ __('Open МойСклад') }}</h3>
+                                <p class="text-gray-600 text-sm mt-1">{{ __('Go to moysklad.ru and log in to your account') }}</p>
                             </div>
                         </div>
 
                         <div class="flex gap-4">
                             <div class="flex-shrink-0 w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center font-bold text-blue-600">2</div>
                             <div>
-                                <h3 class="font-semibold text-gray-900">Go to Settings</h3>
-                                <p class="text-gray-600 text-sm mt-1">Click on the menu and find "Tokens" section (usually in Settings)</p>
+                                <h3 class="font-semibold text-gray-900">{{ __('Go to Settings') }}</h3>
+                                <p class="text-gray-600 text-sm mt-1">{{ __('Click on the menu and find "Tokens" section (usually in Settings)') }}</p>
                             </div>
                         </div>
 
                         <div class="flex gap-4">
                             <div class="flex-shrink-0 w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center font-bold text-blue-600">3</div>
                             <div>
-                                <h3 class="font-semibold text-gray-900">Create New Token</h3>
-                                <p class="text-gray-600 text-sm mt-1">Click "Create Token" button to generate a new API token</p>
+                                <h3 class="font-semibold text-gray-900">{{ __('Create New Token') }}</h3>
+                                <p class="text-gray-600 text-sm mt-1">{{ __('Click "Create Token" button to generate a new API token') }}</p>
                             </div>
                         </div>
 
                         <div class="flex gap-4">
                             <div class="flex-shrink-0 w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center font-bold text-blue-600">4</div>
                             <div>
-                                <h3 class="font-semibold text-gray-900">Copy Token</h3>
-                                <p class="text-gray-600 text-sm mt-1">⚠️ Important: Copy it immediately! You can only view it once. Paste it in the form on the right.</p>
+                                <h3 class="font-semibold text-gray-900">{{ __('Copy Token') }}</h3>
+                                <p class="text-gray-600 text-sm mt-1">⚠️ {{ __('Important: Copy it immediately! You can only view it once. Paste it in the form on the right.') }}</p>
                             </div>
                         </div>
                     </div>

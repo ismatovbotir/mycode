@@ -17,7 +17,6 @@
                 <div class="bg-gray-50 rounded-lg p-3 flex items-center justify-between">
                     <div class="flex-1">
                         <p class="text-sm font-medium text-gray-900">{{ $group['name'] }}</p>
-                        <p class="text-xs text-gray-500">Bot: {{ $group['bot']['name'] ?? 'N/A' }}</p>
                     </div>
                     <button
                         wire:click="deleteGroup('{{ $group['id'] }}')"
@@ -42,22 +41,6 @@
                 <h3 class="text-lg font-semibold mb-4">Create Client Group</h3>
 
                 <div class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-medium text-gray-600 mb-1.5">Bot</label>
-                        <select
-                            wire:model="selectedBot"
-                            class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-500"
-                        >
-                            <option value="">Select a bot</option>
-                            @foreach($company->bots as $bot)
-                                <option value="{{ $bot->id }}">{{ $bot->name }}</option>
-                            @endforeach
-                        </select>
-                        @error('selectedBot')
-                            <span class="text-xs text-red-600 mt-1">{{ $message }}</span>
-                        @enderror
-                    </div>
-
                     <div>
                         <label class="block text-xs font-medium text-gray-600 mb-1.5">Group Name</label>
                         <input

@@ -26,7 +26,7 @@
             <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.2-.08-.06-.2-.04-.28-.02-.12.02-1.96 1.25-5.54 3.69-.52.36-1 .53-1.42.52-.47-.01-1.37-.26-2.03-.48-.82-.27-1.47-.42-1.42-.88.03-.25.38-.51 1.07-.78 4.19-1.82 6.98-3.02 8.38-3.61 3.99-1.66 4.82-1.95 5.36-1.96.12 0 .38.03.55.18.14.13.18.3.2.43-.02.07-.02.13-.03.2z"/></svg>
         </div>
         <h1 class="text-2xl font-bold text-gray-900">MyCode</h1>
-        <p class="text-sm text-gray-500 mt-1">Create your company account</p>
+        <p class="text-sm text-gray-500 mt-1">Create your account</p>
     </div>
 
     <!-- Card -->
@@ -42,34 +42,20 @@
         <form method="POST" action="{{ route('register') }}" class="space-y-4">
             @csrf
 
-            <!-- Company Info -->
+            <!-- Brand Info -->
             <div class="pb-4 border-b border-gray-100">
-                <h3 class="text-xs font-semibold text-gray-600 uppercase mb-3">Company Information</h3>
+                <h3 class="text-xs font-semibold text-gray-600 uppercase mb-3">Brand Information</h3>
 
                 <div>
-                    <label for="company_name" class="block text-xs font-medium text-gray-600 mb-1.5">Company Name</label>
+                    <label for="brand_name" class="block text-xs font-medium text-gray-600 mb-1.5">Brand Name</label>
                     <input
-                        id="company_name"
-                        name="company_name"
+                        id="brand_name"
+                        name="brand_name"
                         type="text"
                         required
                         class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all"
-                        placeholder="Your Company"
-                        value="{{ old('company_name') }}">
-                </div>
-
-                <div class="mt-3">
-                    <label for="inn" class="block text-xs font-medium text-gray-600 mb-1.5">INN (9 digits)</label>
-                    <input
-                        id="inn"
-                        name="inn"
-                        type="text"
-                        required
-                        maxlength="9"
-                        pattern="\d{9}"
-                        class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all"
-                        placeholder="123456789"
-                        value="{{ old('inn') }}">
+                        placeholder="Your Brand"
+                        value="{{ old('brand_name') }}">
                 </div>
             </div>
 
@@ -133,26 +119,18 @@
                 <h3 class="text-xs font-semibold text-gray-600 uppercase mb-3">Preferences</h3>
 
                 <label for="lang" class="block text-xs font-medium text-gray-600 mb-1.5">Preferred Language</label>
-                <div class="grid grid-cols-2 gap-2">
+                <div class="grid grid-cols-3 gap-2">
                     <label class="flex items-center gap-2 p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-brand-300 transition-colors has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50">
                         <input type="radio" name="lang" value="uz" class="text-brand-600" {{ old('lang') == 'uz' ? 'checked' : (!old('lang') ? 'checked' : '') }}>
                         <span class="text-sm font-medium">🇺🇿 Ўзбек</span>
                     </label>
                     <label class="flex items-center gap-2 p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-brand-300 transition-colors has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50">
+                        <input type="radio" name="lang" value="en" class="text-brand-600" {{ old('lang') == 'en' ? 'checked' : '' }}>
+                        <span class="text-sm font-medium">🇬🇧 English</span>
+                    </label>
+                    <label class="flex items-center gap-2 p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-brand-300 transition-colors has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50">
                         <input type="radio" name="lang" value="ru" class="text-brand-600" {{ old('lang') == 'ru' ? 'checked' : '' }}>
                         <span class="text-sm font-medium">🇷🇺 Русский</span>
-                    </label>
-                    <label class="flex items-center gap-2 p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-brand-300 transition-colors has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50">
-                        <input type="radio" name="lang" value="tj" class="text-brand-600" {{ old('lang') == 'tj' ? 'checked' : '' }}>
-                        <span class="text-sm font-medium">🇹🇯 Тоҷикӣ</span>
-                    </label>
-                    <label class="flex items-center gap-2 p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-brand-300 transition-colors has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50">
-                        <input type="radio" name="lang" value="kk" class="text-brand-600" {{ old('lang') == 'kk' ? 'checked' : '' }}>
-                        <span class="text-sm font-medium">🏳️ Қарақалпақ</span>
-                    </label>
-                    <label class="flex items-center gap-2 p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-brand-300 transition-colors has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50">
-                        <input type="radio" name="lang" value="kz" class="text-brand-600" {{ old('lang') == 'kz' ? 'checked' : '' }}>
-                        <span class="text-sm font-medium">🇰🇿 Қазақша</span>
                     </label>
                 </div>
                 @error('lang')

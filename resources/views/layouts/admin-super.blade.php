@@ -51,9 +51,9 @@
             </a>
 
             <p class="text-xs font-medium text-gray-600 uppercase tracking-wider px-3 py-2 mt-3">Management</p>
-            <a href="{{ route('admin.companies') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-400 hover:bg-gray-800 hover:text-white transition-colors {{ request()->routeIs('admin.companies') ? 'bg-gray-800 text-white' : '' }}">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
-                Companies
+            <a href="{{ route('admin.entities.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-400 hover:bg-gray-800 hover:text-white transition-colors {{ request()->routeIs('admin.entities.*') ? 'bg-gray-800 text-white' : '' }}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.5a2 2 0 00-1 .24l-1.697 1.13a2 2 0 01-2.12 0l-1.697-1.13A2 2 0 007.5 9H5a2 2 0 00-2 2v4a2 2 0 002 2z"/></svg>
+                Entities
             </a>
             <a href="{{ route('admin.failed-jobs') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-400 hover:bg-gray-800 hover:text-white transition-colors {{ request()->routeIs('admin.failed-jobs') ? 'bg-gray-800 text-white' : '' }}">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>

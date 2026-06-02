@@ -70,9 +70,8 @@ class TelegramWebhookController
     {
         $langMap = [
             "🇺🇿 O'zbek" => 'uz',
+            '🇬🇧 English' => 'en',
             '🇷🇺 Русский' => 'ru',
-            '🇹🇯 Тоҷикӣ' => 'tj',
-            '🇺🇿 Qaraqalpaq' => 'kk',
         ];
 
         $lang = $langMap[$text] ?? 'ru';
@@ -81,9 +80,8 @@ class TelegramWebhookController
 
         $messages = [
             'uz' => 'Iltimos, ismingiz va familiyangizni kiriting:',
+            'en' => 'Please enter your first and last name:',
             'ru' => 'Пожалуйста, введите имя и фамилию:',
-            'tj' => 'Лутфан, номи ва насаби худро дохил кунед:',
-            'kk' => 'Өтіңіз, аты-жөніңізді енгізіңіз:',
         ];
 
         $this->telegramService->sendMessage($token, $chatId, $messages[$lang] ?? $messages['ru']);
@@ -157,15 +155,13 @@ class TelegramWebhookController
         $messages = $matched
             ? [
                 'uz' => 'Rahmat! Siz tizimga ulandi.',
+                'en' => 'Thank you! You are connected to the system.',
                 'ru' => 'Спасибо! Вы подключены к системе.',
-                'tj' => 'Тшаккур! Шумо ба тизим пайвастед.',
-                'kk' => 'Рахмет! Сіз жүйеге қосылдыңыз.',
             ]
             : [
                 'uz' => 'Rahmat! Siz kutiш ro\'yxatida mavjudsiz.',
+                'en' => 'Thank you! You are on the waiting list.',
                 'ru' => 'Спасибо! Вы в списке ожидания.',
-                'tj' => 'Тшаккур! Шумо дар рӯйхати интизор ҳастед.',
-                'kk' => 'Рахмет! Сіз күту тізімінде бар.',
             ];
 
         $this->telegramService->sendMessage($token, $chatId, $messages[$lang] ?? $messages['ru']);

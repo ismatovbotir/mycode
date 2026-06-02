@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['bot_id', 'tg_user_id', 'mySklad_id', 'matched', 'matched_at', 'approved', 'approved_at'])]
+#[Fillable(['bot_id', 'tg_user_id', 'client_id', 'approved', 'approved_at', 'is_owner'])]
 class BotClient extends Model
 {
     use HasFactory, HasUuids;
@@ -21,10 +21,9 @@ class BotClient extends Model
     }
 
     protected $casts = [
-        'matched' => 'boolean',
-        'matched_at' => 'datetime',
         'approved' => 'boolean',
         'approved_at' => 'datetime',
+        'is_owner' => 'boolean',
     ];
 
     public function bot(): BelongsTo
@@ -35,6 +34,11 @@ class BotClient extends Model
     public function tgUser(): BelongsTo
     {
         return $this->belongsTo(TgUser::class);
+    }
+
+    public function client(): BelongsTo
+    {
+        return $this->belongsTo(Client::class);
     }
 
     public function notifications(): HasMany

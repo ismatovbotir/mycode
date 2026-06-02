@@ -7,7 +7,9 @@
             <h1 class="text-xl font-semibold">Dashboard</h1>
             <p class="text-sm text-gray-500 mt-0.5">Welcome back, {{ auth()->user()->name }}!</p>
         </div>
-        <livewire:create-bot-modal />
+        @if(!auth()->user()->bot)
+            <livewire:create-bot-modal />
+        @endif
     </div>
 
     @if(session('success'))
@@ -25,18 +27,18 @@
     <!-- Stats -->
     <div class="grid grid-cols-4 gap-4 mb-6">
         <div class="bg-white rounded-xl border border-gray-200 p-4">
-            <p class="text-xs text-gray-500 font-medium">Active Bots</p>
-            <p class="text-2xl font-bold mt-1">{{ auth()->user()->company->bots->count() }}</p>
-            <p class="text-xs text-green-600 mt-1">All configured</p>
+            <p class="text-xs text-gray-500 font-medium">Bot Status</p>
+            <p class="text-2xl font-bold mt-1">{{ auth()->user()->bot ? '✓ Active' : '○ Pending' }}</p>
+            <p class="text-xs text-green-600 mt-1">{{ auth()->user()->bot ? 'Configured' : 'Not configured' }}</p>
         </div>
         <div class="bg-white rounded-xl border border-gray-200 p-4">
             <p class="text-xs text-gray-500 font-medium">Total Clients</p>
-            <p class="text-2xl font-bold mt-1">{{ auth()->user()->company->bots->sum(fn($b) => $b->clients->count()) }}</p>
+            <p class="text-2xl font-bold mt-1">{{ auth()->user()->bot?->clients->count() ?? 0 }}</p>
             <p class="text-xs text-green-600 mt-1">Registered</p>
         </div>
         <div class="bg-white rounded-xl border border-gray-200 p-4">
             <p class="text-xs text-gray-500 font-medium">Integrations</p>
-            <p class="text-2xl font-bold mt-1">{{ auth()->user()->company->integrations->count() }}</p>
+            <p class="text-2xl font-bold mt-1">{{ auth()->user()->bot?->integrations->count() ?? 0 }}</p>
             <p class="text-xs text-blue-600 mt-1">Connected</p>
         </div>
         <div class="bg-white rounded-xl border border-gray-200 p-4">
@@ -46,15 +48,15 @@
         </div>
     </div>
 
-    <!-- Bots Section -->
-    @if(auth()->user()->company->bots->count() > 0)
+    <!-- Bot Section -->
+    @if(auth()->user()->bot)
         <div class="bg-white rounded-xl border border-gray-200">
             <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
-                <h2 class="text-sm font-semibold">Your Bots</h2>
-                <a href="#" class="text-xs text-brand-600 hover:underline">Create new →</a>
+                <h2 class="text-sm font-semibold">Your Bot</h2>
+                <a href="{{ route('bots.show', auth()->user()->bot) }}" class="text-xs text-brand-600 hover:underline">View details →</a>
             </div>
-            <div class="divide-y divide-gray-50">
-                @foreach(auth()->user()->company->bots as $bot)
+            <div>
+                @php $bot = auth()->user()->bot; @endphp
                     <div class="px-5 py-4 hover:bg-gray-50 transition-colors">
                         <div class="flex items-start justify-between mb-3">
                             <div class="flex items-center gap-3 flex-1">
@@ -75,7 +77,6 @@
                             </a>
                         </div>
                     </div>
-                @endforeach
             </div>
         </div>
     @else

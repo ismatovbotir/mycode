@@ -32,7 +32,7 @@ class MoySkladService
 
         $data = $response->json();
 
-        if (isset($data['result']['rows']) && count($data['result']['rows']) > 0) {
+        if (isset($data['result']['rows']) && \count($data['result']['rows']) > 0) {
             return $data['result']['rows'][0];
         }
 
@@ -59,18 +59,142 @@ class MoySkladService
         return $data['result'] ?? null;
     }
 
-    public function testConnection(): bool
+    public function getAllCounterparties(int $limit = 100): ?array
     {
         $payload = [
             'jsonrpc' => '2.0',
-            'method' => 'entity.customerorder.list',
-            'params' => ['limit' => 1],
+            'method' => 'entity.counterparty.list',
+            'params' => ['limit' => $limit],
             'id' => uniqid(),
         ];
 
         $response = Http::withToken($this->token)->post($this->apiUrl, $payload);
 
-        return $response->ok() && !isset($response->json()['error']);
+        if (!$response->ok()) {
+            return null;
+        }
+
+        $data = $response->json();
+
+        if (isset($data['result']['rows'])) {
+            return $data['result']['rows'];
+        }
+
+        return [];
+    }
+
+    public function getCounterpartyById(string $counterpartyId): ?array
+    {
+        $payload = [
+            'jsonrpc' => '2.0',
+            'method' => 'entity.counterparty.get',
+            'params' => ['id' => $counterpartyId],
+            'id' => uniqid(),
+        ];
+
+        $response = Http::withToken($this->token)->post($this->apiUrl, $payload);
+
+        if (!$response->ok()) {
+            return null;
+        }
+
+        $data = $response->json();
+
+        return $data['result'] ?? null;
+    }
+
+    public function testConnection(): array
+    {
+        $testUrl = 'https://api.moysklad.ru/api/remap/1.2/entity/employee';
+
+        try {
+            $response = Http::withHeaders([
+                'Authorization' => "Bearer {$this->token}",
+                'Content-Type' => 'application/json',
+                'Accept-Encoding' => 'gzip',
+
+            ])->timeout(20)->get($testUrl);
+            //dd($response->body());
+            $maskedToken = substr($this->token, 0, 10) . '***' . substr($this->token, -10);
+
+            $body = $response->body();
+            if ($response->successful()) {
+                try {
+                    $body = $response->json();
+                } catch (\Exception $e) {
+                    // Keep as string if not JSON
+                }
+            }
+
+            return [
+                'method' => 'GET',
+                'url' => $testUrl,
+                'headers' => [
+                    'Authorization' => "Bearer {$maskedToken}",
+                    'Accept' => 'application/json',
+                    'User-Agent' => 'MyCode/1.0',
+                ],
+                'status_code' => $response->status(),
+                'body' => $body,
+                'success' => $response->status() === 200,
+            ];
+        } catch (\Exception $e) {
+            $maskedToken = substr($this->token, 0, 10) . '***' . substr($this->token, -10);
+
+            return [
+                'method' => 'GET',
+                'url' => $testUrl,
+                'headers' => [
+                    'Authorization' => "Bearer {$maskedToken}",
+                    'Accept' => 'application/json',
+                    'User-Agent' => 'MyCode/1.0',
+                ],
+                'status_code' => 0,
+                'body' => 'Connection Error: ' . $e->getMessage(),
+                'success' => false,
+            ];
+        }
+    }
+
+    public function createWebhook(string $entityType, string $webhookUrl, string $action = 'CREATE'): ?array
+    {
+        $url = 'https://api.moysklad.ru/api/remap/1.2/entity/webhook';
+        try {
+            $response = Http::withHeaders([
+                'Authorization' => "Bearer {$this->token}",
+                'Content-Type' => 'application/json',
+                'Accept-Encoding' => 'gzip',
+            ])->timeout(20)->post($url, [
+                'url' => $webhookUrl,
+                'action' => $action,
+                'entityType' => $entityType,
+            ]);
+
+            if (!$response->successful()) {
+                \Log::error('МойСклад webhook creation failed', [
+                    'entity' => $entityType,
+                    'action' => $action,
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ]);
+                return null;
+            }
+
+            $data = $response->json();
+            return [
+                'id' => $data['id'] ?? null,
+                'url' => $data['url'] ?? $webhookUrl,
+                'action' => $data['action'] ?? $action,
+                'entityType' => $data['entityType'] ?? $entityType,
+            ];
+        } catch (\Exception $e) {
+            \Log::error('МойСклад webhook creation exception', [
+                'entity' => $entityType,
+                'action' => $action,
+                'error' => $e->getMessage(),
+            ]);
+            return null;
+        }
     }
 
     private function normalizePhone(string $phone): string

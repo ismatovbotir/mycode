@@ -8,11 +8,9 @@ use Livewire\Component;
 
 class ClientGroupManager extends Component
 {
-    public $company;
     public $groups = [];
     public $showCreateModal = false;
     public $newGroupName = '';
-    public $selectedBot = null;
 
     public function mount()
     {
@@ -21,35 +19,37 @@ class ClientGroupManager extends Component
 
     public function loadGroups()
     {
-        $this->groups = $this->company->groups()->with('bot')->get()->toArray();
+        $bot = auth()->user()->bot;
+        if (!$bot) {
+            $this->groups = [];
+            return;
+        }
+        $this->groups = $bot->groups()->get()->toArray();
     }
 
     public function openCreateModal()
     {
         $this->showCreateModal = true;
         $this->newGroupName = '';
-        $this->selectedBot = null;
     }
 
     public function closeCreateModal()
     {
         $this->showCreateModal = false;
         $this->newGroupName = '';
-        $this->selectedBot = null;
     }
 
     public function createGroup()
     {
+        $bot = auth()->user()->bot;
+        abort_if(!$bot, 404);
+
         $this->validate([
             'newGroupName' => ['required', 'string', 'max:255'],
-            'selectedBot' => ['required', 'uuid'],
         ]);
-
-        $bot = $this->company->bots()->findOrFail($this->selectedBot);
 
         ClientGroup::create([
             'id' => Str::uuid(),
-            'company_id' => $this->company->id,
             'bot_id' => $bot->id,
             'name' => $this->newGroupName,
         ]);
@@ -61,8 +61,11 @@ class ClientGroupManager extends Component
 
     public function deleteGroup($groupId)
     {
+        $bot = auth()->user()->bot;
+        abort_if(!$bot, 404);
+
         $group = ClientGroup::findOrFail($groupId);
-        abort_if($group->company_id !== $this->company->id, 403);
+        abort_if($group->bot_id !== $bot->id, 403);
         $group->delete();
 
         $this->loadGroups();

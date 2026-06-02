@@ -5,10 +5,9 @@
     <!-- Header -->
     <div class="mb-6 flex items-center justify-between">
         <div>
-            <h1 class="text-2xl font-semibold">Your Bots</h1>
-            <p class="text-sm text-gray-500 mt-1">Manage all Telegram bots</p>
+            <h1 class="text-2xl font-semibold">Your Bot</h1>
+            <p class="text-sm text-gray-500 mt-1">Manage your Telegram bot</p>
         </div>
-        <livewire:create-bot-modal />
     </div>
 
     @if(session('success'))
@@ -23,36 +22,28 @@
         </div>
     @endif
 
-    @if($bots->count() > 0)
+    @if($bot)
         <div class="bg-white rounded-xl border border-gray-200">
-            <div class="divide-y divide-gray-50">
-                @foreach($bots as $bot)
-                    <div class="px-5 py-4 hover:bg-gray-50 transition-colors">
-                        <div class="flex items-start justify-between mb-3">
-                            <div class="flex items-center gap-3 flex-1">
-                                <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-lg">🤖</div>
-                                <div class="flex-1">
-                                    <div class="flex items-center gap-2">
-                                        <h3 class="font-semibold">{{ $bot->name }}</h3>
-                                        <livewire:toggle-bot-active :bot="$bot" :key="'toggle-'.$bot->id" />
-                                    </div>
-                                    <div class="flex items-center gap-4 mt-1">
-                                        <p class="text-sm text-gray-500">{{ $bot->clients->count() }} clients</p>
-                                        <livewire:set-webhook-button :bot="$bot" :key="'webhook-'.$bot->id" />
-                                    </div>
-                                </div>
+            <div class="px-5 py-4">
+                <div class="flex items-start justify-between">
+                    <div class="flex items-center gap-3 flex-1">
+                        <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-lg">🤖</div>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2">
+                                <h3 class="font-semibold">{{ $bot->name }}</h3>
+                                <livewire:toggle-bot-active :bot="$bot" :key="'toggle-'.$bot->id" />
                             </div>
-                            <a href="{{ route('bots.show', $bot) }}" class="text-xs text-brand-600 px-3 py-1.5 rounded-lg border border-brand-200 hover:bg-brand-50 transition-colors ml-4">
-                                View Details
-                            </a>
+                            <div class="flex items-center gap-4 mt-1">
+                                <p class="text-sm text-gray-500">{{ $bot->clients->count() }} clients</p>
+                                <livewire:set-webhook-button :bot="$bot" :key="'webhook-'.$bot->id" />
+                            </div>
                         </div>
                     </div>
-                @endforeach
+                    <a href="{{ route('bots.show', $bot) }}" class="text-xs text-brand-600 px-3 py-1.5 rounded-lg border border-brand-200 hover:bg-brand-50 transition-colors ml-4">
+                        View Details
+                    </a>
+                </div>
             </div>
-        </div>
-
-        <div class="mt-6">
-            {{ $bots->links() }}
         </div>
     @else
         <div class="bg-white rounded-xl border-2 border-dashed border-gray-200 p-8 text-center">
@@ -61,8 +52,8 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                 </svg>
             </div>
-            <h3 class="text-sm font-semibold text-gray-900 mb-1">No bots yet</h3>
-            <p class="text-xs text-gray-500 mb-4">Create your first Telegram bot to get started</p>
+            <h3 class="text-sm font-semibold text-gray-900 mb-1">No bot yet</h3>
+            <p class="text-xs text-gray-500 mb-4">Create a Telegram bot to get started</p>
             <livewire:create-bot-modal />
         </div>
     @endif

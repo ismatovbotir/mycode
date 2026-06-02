@@ -13,6 +13,8 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'super.admin' => \App\Http\Middleware\IsSuperAdmin::class,
+            'set.locale'  => \App\Http\Middleware\SetLocale::class,
+            'ensure.moysklad.token' => \App\Http\Middleware\EnsureMoySkladToken::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

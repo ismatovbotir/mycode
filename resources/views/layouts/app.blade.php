@@ -5,13 +5,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'MyCode')</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 <body class="bg-gray-100">
     <nav class="bg-white shadow">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
-                    <a href="/" class="text-xl font-bold text-blue-600">MyCode</a>
+                    <a href="/" class="text-xl font-bold text-blue-600 mr-8">MyCode</a>
+                    @auth
+                        <div class="flex space-x-1">
+                            <a href="{{ route('dashboard') }}" class="px-3 py-2 rounded-md text-sm font-medium {{ request()->routeIs('dashboard') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100' }}">
+                                Dashboard
+                            </a>
+                            <a href="{{ route('bots.index') }}" class="px-3 py-2 rounded-md text-sm font-medium {{ request()->routeIs('bots.*') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100' }}">
+                                Bots
+                            </a>
+                            <a href="{{ route('clients.index') }}" class="px-3 py-2 rounded-md text-sm font-medium {{ request()->routeIs('clients.*') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100' }}">
+                                Clients
+                            </a>
+                            <a href="{{ route('entities.activation') }}" class="px-3 py-2 rounded-md text-sm font-medium {{ request()->routeIs('entities.*') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100' }}">
+                                Entities
+                            </a>
+                            <a href="{{ route('settings.index') }}" class="px-3 py-2 rounded-md text-sm font-medium {{ request()->routeIs('settings.*') ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100' }}">
+                                Settings
+                            </a>
+                            @if(auth()->user()->moysklad_token)
+                                <a href="#" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-100">
+                                    📊 МойСклад
+                                </a>
+                            @endif
+                        </div>
+                    @endauth
                 </div>
                 <div class="flex items-center space-x-4">
                     @auth

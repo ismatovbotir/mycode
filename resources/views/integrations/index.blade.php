@@ -8,7 +8,12 @@
             <h1 class="text-2xl font-semibold">{{ $bot->name }} - Integrations</h1>
             <p class="text-sm text-gray-500 mt-1">Connect external services to this bot</p>
         </div>
-        <livewire:create-integration-modal :bot="$bot" :key="'create-int-'.$bot->id" />
+        <div class="flex gap-3">
+            <a href="{{ route('webhooks.show', $bot) }}" class="px-4 py-2 bg-gray-600 text-white text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors">
+                🔗 Webhook Setup
+            </a>
+            <livewire:create-integration-modal :bot="$bot" :key="'create-int-'.$bot->id" />
+        </div>
     </div>
 
     @if(session('success'))
@@ -44,16 +49,19 @@
 
                     @if($integration->type === 'moisklad')
                         <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-3">
-                            <div>
-                                <p class="text-xs font-medium text-blue-900 mb-1">Webhook URL:</p>
-                                <div class="flex items-center gap-2">
-                                    <code class="flex-1 text-xs bg-white p-2 rounded border border-blue-200 text-blue-900 break-all font-mono">
-                                        {{ route('api.webhook.moisklad', [], true) }}
-                                    </code>
-                                    <button onclick="copyToClipboard('{{ route('api.webhook.moisklad', [], true) }}')" class="px-2 py-1 bg-white border border-blue-200 text-blue-600 rounded text-xs font-medium hover:bg-blue-100 transition-colors">
-                                        Copy
-                                    </button>
+                            <div class="flex items-center justify-between">
+                                <div class="flex-1">
+                                    <p class="text-xs font-medium text-blue-900 mb-1">Webhook URL:</p>
+                                    <div class="flex items-center gap-2">
+                                        <code class="flex-1 text-xs bg-white p-2 rounded border border-blue-200 text-blue-900 break-all font-mono">
+                                            {{ route('moisklad.webhook', $bot, true) }}
+                                        </code>
+                                        <button onclick="copyToClipboard('{{ route('moisklad.webhook', $bot, true) }}')" class="px-2 py-1 bg-white border border-blue-200 text-blue-600 rounded text-xs font-medium hover:bg-blue-100 transition-colors">
+                                            Copy
+                                        </button>
+                                    </div>
                                 </div>
+                                <livewire:import-counterparties-modal :key="'import-'.$bot->id" />
                             </div>
 
                             <div>
@@ -61,8 +69,8 @@
                                 <ol class="text-xs text-blue-800 space-y-1 list-decimal list-inside">
                                     <li>Go to МойСклад Settings → Webhooks</li>
                                     <li>Add new webhook with the URL above</li>
-                                    <li>Enable events: Supply, Demand, Payments</li>
-                                    <li>Test the webhook</li>
+                                    <li>Enable events: Counterparty (Create/Update)</li>
+                                    <li>Or use the <strong>Import Counterparties</strong> button above to sync existing data</li>
                                 </ol>
                             </div>
                         </div>

@@ -9,6 +9,6 @@ class IntegrationPolicy
 {
     public function delete(User $user, Integration $integration): bool
     {
-        return $user->company_id === $integration->company_id;
+        return $user->id === $integration->bot->user_id;
     }
 }

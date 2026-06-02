@@ -5,24 +5,44 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\BotController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\IntegrationWebController;
-use App\Http\Controllers\CompanyController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn() => view('welcome'));
 
 Route::model('bot', \App\Models\Bot::class);
 
-Route::middleware('guest')->group(function () {
+// ---------------------------------------------------------------------------
+// Auth routes — locale-prefixed: /uz/register  /ru/register  /en/register
+// Default (no prefix) falls back to locale 'uz'
+// ---------------------------------------------------------------------------
+$authRoutes = function (): void {
     Route::get('/register', [RegisterController::class, 'create'])->name('register');
     Route::post('/register', [RegisterController::class, 'store']);
     Route::get('/login', [LoginController::class, 'create'])->name('login');
     Route::post('/login', [LoginController::class, 'store']);
-});
+};
+
+// Locale-prefixed: /uz/register, /ru/register, /en/register
+Route::middleware(['guest', 'set.locale'])
+    ->prefix('{locale}')
+    ->where(['locale' => 'uz|ru|en'])
+    ->name('locale.')
+    ->group($authRoutes);
+
+// Default (no prefix) — resolves locale from session or falls back to 'uz'
+Route::middleware(['guest', 'set.locale'])
+    ->group($authRoutes);
+// ---------------------------------------------------------------------------
 
 Route::post('/logout', [LoginController::class, 'destroy'])->middleware('auth')->name('logout');
 
-// User Dashboard Routes
+// МойСклад Setup Routes (before auth middleware)
 Route::middleware('auth')->group(function () {
+    Route::get('/moysklad-setup', [\App\Http\Controllers\MoySkladSetupController::class, 'index'])->name('moysklad-setup.index');
+});
+
+// User Dashboard Routes
+Route::middleware(['auth', 'ensure.moysklad.token'])->group(function () {
     Route::get('/dashboard', fn() => view('dashboard-admin'))->name('dashboard');
 
     Route::get('/bots', [BotController::class, 'index'])->name('bots.index');
@@ -36,21 +56,44 @@ Route::middleware('auth')->group(function () {
     Route::get('/bots/{bot}/integrations', [IntegrationWebController::class, 'index'])->name('integrations.index');
     Route::post('/bots/{bot}/integrations', [IntegrationWebController::class, 'store'])->name('integrations.store');
     Route::delete('/bots/{bot}/integrations/{integration}', [IntegrationWebController::class, 'destroy'])->name('integrations.destroy');
+    Route::get('/bots/{bot}/webhooks', [\App\Http\Controllers\WebhookManagementController::class, 'show'])->name('webhooks.show');
 
     Route::get('/clients', [ClientController::class, 'index'])->name('clients.index');
 
-    Route::get('/company/settings', [CompanyController::class, 'settings'])->name('company.settings');
-    Route::put('/company/settings', [CompanyController::class, 'updateSettings'])->name('company.updateSettings');
+    Route::get('/entities', fn() => view('admin.entities'))->name('entities.index');
+    Route::post('/entities/{entity}/activate', [\App\Http\Controllers\EntityActivationController::class, 'activate'])->name('entities.activate');
+    Route::post('/entities/{entity}/deactivate', [\App\Http\Controllers\EntityActivationController::class, 'deactivate'])->name('entities.deactivate');
+
+    Route::get('/settings', [\App\Http\Controllers\SettingsController::class, 'index'])->name('settings.index');
+    Route::put('/settings', [\App\Http\Controllers\SettingsController::class, 'update'])->name('settings.update');
 });
 
 // Super Admin Dashboard Routes
 Route::middleware(['auth', 'super.admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', fn() => view('admin.dashboard'))->name('dashboard');
-    Route::get('/companies', fn() => view('admin.companies'))->name('companies');
+    Route::get('/management', fn() => view('admin.management-menu'))->name('management');
     Route::get('/load', fn() => view('admin.load'))->name('load');
     Route::get('/queues', fn() => view('admin.queues'))->name('queues');
     Route::get('/failed-jobs', fn() => view('admin.failed-jobs'))->name('failed-jobs');
+
+    // Webhook Event Types Management
+    Route::resource('webhook-event-types', \App\Http\Controllers\Admin\WebhookEventTypeController::class);
+
+    // Integration Fields Management
+    Route::resource('integration-fields', \App\Http\Controllers\Admin\IntegrationFieldController::class);
+
+    // Entities Management
+    Route::get('/entities', [\App\Http\Controllers\Admin\EntityController::class, 'index'])->name('entities.index');
+
+    // МойСклад Webhooks Management
+    Route::get('/moysklad-webhooks', fn() => view('admin.moysklad-webhooks'))->name('moysklad-webhooks.index');
 });
 
 Route::post('/webhook/telegram/{bot}', [\App\Http\Controllers\Webhook\TelegramWebhookController::class, 'handle'])
     ->name('telegram.webhook');
+
+Route::post('/webhook/moisklad/{bot}', [\App\Http\Controllers\Webhook\MoySkladWebhookController::class, 'handle'])
+    ->name('moisklad.webhook');
+
+Route::post('/api/webhook/ms/{user_entity}', [\App\Http\Controllers\Webhook\EntityWebhookController::class, 'handle'])
+    ->name('webhook.moysklad.entity');

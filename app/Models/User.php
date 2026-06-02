@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['company_id', 'name', 'email', 'password', 'lang', 'role', 'phone', 'tg_chat_id', 'tg_linked_at'])]
+#[Fillable(['name', 'brand_name', 'email', 'password', 'lang', 'role', 'phone', 'tg_chat_id', 'tg_linked_at', 'moysklad_token'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -22,11 +22,17 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
         'tg_linked_at' => 'datetime',
+        'moysklad_token' => 'encrypted',
     ];
 
-    public function company(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function bot(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
-        return $this->belongsTo(Company::class);
+        return $this->hasOne(Bot::class);
+    }
+
+    public function entities(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(UserEntity::class);
     }
 
     public function isSuperAdmin(): bool

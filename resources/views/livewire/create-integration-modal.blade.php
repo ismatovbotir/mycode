@@ -33,44 +33,78 @@
                         @enderror
                     </div>
 
-                    <!-- Token Info -->
-                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 text-xs text-blue-800">
-                        <p class="font-medium mb-1">🔐 МойСклад Bearer Token</p>
-                        <p>Get your API token from МойСклад Settings → API → Create Token. We'll encrypt it securely.</p>
-                    </div>
+                    <!-- Dynamic Fields -->
+                    @forelse($fields as $field)
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1.5">
+                                {{ $field->label }}
+                                @if($field->is_required)
+                                    <span class="text-red-500">*</span>
+                                @endif
+                            </label>
 
-                    <!-- Bearer Token -->
-                    <div>
-                        <label class="block text-xs font-medium text-gray-600 mb-1.5">API Bearer Token</label>
-                        <input
-                            type="password"
-                            wire:model="moisklad_token"
-                            placeholder="Paste your МойСклад API token here"
-                            required
-                            class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500"/>
-                        @error('moisklad_token')
-                            <span class="text-xs text-red-600 mt-1">{{ $message }}</span>
-                        @enderror
-                    </div>
+                            @if($field->type === 'password')
+                                <input
+                                    type="password"
+                                    wire:model="credentials.{{ $field->field_key }}"
+                                    placeholder="{{ $field->placeholder }}"
+                                    @if($field->is_required) required @endif
+                                    class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500"/>
+                            @elseif($field->type === 'url')
+                                <input
+                                    type="url"
+                                    wire:model="credentials.{{ $field->field_key }}"
+                                    placeholder="{{ $field->placeholder }}"
+                                    @if($field->is_required) required @endif
+                                    class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500"/>
+                            @elseif($field->type === 'email')
+                                <input
+                                    type="email"
+                                    wire:model="credentials.{{ $field->field_key }}"
+                                    placeholder="{{ $field->placeholder }}"
+                                    @if($field->is_required) required @endif
+                                    class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500"/>
+                            @else
+                                <input
+                                    type="text"
+                                    wire:model="credentials.{{ $field->field_key }}"
+                                    placeholder="{{ $field->placeholder }}"
+                                    @if($field->is_required) required @endif
+                                    class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500"/>
+                            @endif
+
+                            @if($field->help_text)
+                                <p class="text-xs text-gray-500 mt-1">{{ $field->help_text }}</p>
+                            @endif
+
+                            @error("credentials.{$field->field_key}")
+                                <span class="text-xs text-red-600 mt-1">{{ $message }}</span>
+                            @enderror
+                        </div>
+                    @empty
+                        <p class="text-sm text-gray-500">No configuration fields found</p>
+                    @endforelse
 
                     <!-- Test Connection -->
-                    <button
-                        type="button"
-                        wire:click="testConnection"
-                        wire:loading.attr="disabled"
-                        class="w-full text-sm bg-blue-100 text-blue-700 font-medium px-4 py-2 rounded-lg hover:bg-blue-200 transition-colors disabled:opacity-50">
-                        <span wire:loading.remove>🔗 Test Connection</span>
-                        <span wire:loading>
-                            <svg class="animate-spin inline w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                            Testing...
-                        </span>
-                    </button>
+                    @if($fields->count() > 0)
+                        <button
+                            type="button"
+                            wire:click="testConnection"
+                            wire:loading.attr="disabled"
+                            class="w-full text-sm bg-blue-100 text-blue-700 font-medium px-4 py-2 rounded-lg hover:bg-blue-200 transition-colors disabled:opacity-50">
+                            <span wire:loading.remove>🔗 Test Connection</span>
+                            <span wire:loading>
+                                <svg class="animate-spin inline w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                Testing...
+                            </span>
+                        </button>
 
-                    <!-- Test Result -->
-                    @if($test_message)
-                        <div class="p-3 rounded-lg {{ str_contains($test_message, '✓') ? 'bg-green-50 border border-green-200 text-green-700' : 'bg-red-50 border border-red-200 text-red-700' }} text-xs font-medium">
-                            {{ $test_message }}
-                        </div>
+                        <!-- Test Result -->
+                        @if($test_message)
+                            <div class="p-3 rounded-lg {{ str_contains($test_message, '✓') ? 'bg-green-50 border border-green-200 text-green-700' : 'bg-red-50 border border-red-200 text-red-700' }} text-xs font-medium">
+                                {{ $test_message }}
+                            </div>
+                        @endif
                     @endif
                 </form>
 

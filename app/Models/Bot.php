@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['company_id', 'name', 'tg_bot_token', 'webhook_secret', 'webhook_status', 'content', 'is_active', 'requires_admin_approval'])]
+#[Fillable(['user_id', 'name', 'tg_bot_token', 'webhook_secret', 'webhook_status', 'content', 'is_active', 'requires_admin_approval'])]
 class Bot extends Model
 {
     use HasFactory, HasUuids;
@@ -26,9 +26,9 @@ class Bot extends Model
         'tg_bot_token' => 'encrypted',
     ];
 
-    public function company(): BelongsTo
+    public function user(): BelongsTo
     {
-        return $this->belongsTo(Company::class);
+        return $this->belongsTo(User::class);
     }
 
     public function clients(): HasMany
@@ -65,4 +65,17 @@ class Bot extends Model
     {
         return $this->hasMany(Integration::class);
     }
+
+    public function moiskladClients(): HasMany
+    {
+        return $this->hasMany(Client::class);
+    }
+
+    public function webhookEventTypes(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(WebhookEventType::class, 'bot_webhook_event_types')
+            ->withPivot('is_enabled')
+            ->withTimestamps();
+    }
 }
+

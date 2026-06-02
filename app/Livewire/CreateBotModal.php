@@ -10,11 +10,13 @@ use Livewire\Component;
 class CreateBotModal extends Component
 {
     public bool $isOpen = false;
+    public bool $showWebhookModal = false;
+    public ?Bot $createdBot = null;
 
     public string $name = '';
     public string $tg_bot_token = '';
-    public array $greeting = ['uz' => '', 'kk' => '', 'kz' => '', 'tj' => '', 'ru' => ''];
-    public array $about = ['uz' => '', 'kk' => '', 'kz' => '', 'tj' => '', 'ru' => ''];
+    public array $greeting = ['uz' => '', 'en' => '', 'ru' => ''];
+    public array $about = ['uz' => '', 'en' => '', 'ru' => ''];
     public string $currentLang = 'uz';
     public bool $requires_admin_approval = false;
 
@@ -27,6 +29,14 @@ class CreateBotModal extends Component
     {
         $this->isOpen = false;
         $this->resetForm();
+    }
+
+    public function closeWebhookModal()
+    {
+        $this->showWebhookModal = false;
+        $this->createdBot = null;
+        session()->flash('success', 'Bot created successfully! Webhook is set and ready.');
+        return $this->redirect(route('bots.index'), navigate: true);
     }
 
     public function switchLang($lang)
@@ -43,8 +53,10 @@ class CreateBotModal extends Component
             'about.uz' => 'required|string|max:1000',
         ]);
 
+        abort_if(auth()->user()->bot, 403, 'User already has a bot');
+
         // Fill missing languages with first language (uz)
-        foreach (['kk', 'kz', 'tj', 'ru'] as $lang) {
+        foreach (['en', 'ru'] as $lang) {
             if (empty($this->greeting[$lang])) {
                 $this->greeting[$lang] = $this->greeting['uz'];
             }
@@ -53,11 +65,8 @@ class CreateBotModal extends Component
             }
         }
 
-        $company = auth()->user()->company;
-
         $bot = Bot::create([
-            'uuid' => Str::uuid(),
-            'company_id' => $company->id,
+            'user_id' => auth()->user()->id,
             'name' => $this->name,
             'tg_bot_token' => encrypt($this->tg_bot_token),
             'webhook_secret' => Str::uuid(),
@@ -80,19 +89,17 @@ class CreateBotModal extends Component
             $bot->update(['webhook_status' => 'failed']);
         }
 
-        $this->dispatch('bot-created');
-        $this->closeModal();
-        session()->flash('success', 'Bot created successfully! Webhook set up completed.');
-
-        return $this->redirect(route('bots.index'), navigate: true);
+        $this->createdBot = $bot;
+        $this->isOpen = false;
+        $this->showWebhookModal = true;
     }
 
     private function resetForm()
     {
         $this->name = '';
         $this->tg_bot_token = '';
-        $this->greeting = ['uz' => '', 'kk' => '', 'kz' => '', 'tj' => '', 'ru' => ''];
-        $this->about = ['uz' => '', 'kk' => '', 'kz' => '', 'tj' => '', 'ru' => ''];
+        $this->greeting = ['uz' => '', 'en' => '', 'ru' => ''];
+        $this->about = ['uz' => '', 'en' => '', 'ru' => ''];
         $this->currentLang = 'uz';
         $this->requires_admin_approval = false;
     }

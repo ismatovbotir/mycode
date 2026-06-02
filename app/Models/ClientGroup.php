@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['company_id', 'bot_id', 'name'])]
+#[Fillable(['bot_id', 'name'])]
 class ClientGroup extends Model
 {
     use HasFactory, HasUuids;
@@ -21,11 +21,6 @@ class ClientGroup extends Model
     public function getRouteKeyName(): string
     {
         return 'id';
-    }
-
-    public function company(): BelongsTo
-    {
-        return $this->belongsTo(Company::class);
     }
 
     public function bot(): BelongsTo

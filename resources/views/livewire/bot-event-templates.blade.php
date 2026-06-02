@@ -16,7 +16,7 @@
 
     <!-- Language Tabs -->
     <div class="flex gap-1 border-b border-gray-100">
-        @foreach(['uz', 'ru', 'tj', 'kk'] as $lang)
+        @foreach(['uz', 'en', 'ru'] as $lang)
             <button
                 type="button"
                 wire:click="switchLang('{{ $lang }}')"
@@ -25,14 +25,11 @@
                     @case('uz')
                         🇺🇿 O'z
                         @break
+                    @case('en')
+                        🇬🇧 Eng
+                        @break
                     @case('ru')
                         🇷🇺 Рус
-                        @break
-                    @case('tj')
-                        🇹🇯 Тоҷ
-                        @break
-                    @case('kk')
-                        🏳️ Қар
                         @break
                 @endswitch
             </button>

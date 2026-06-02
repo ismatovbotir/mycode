@@ -9,10 +9,13 @@ use Illuminate\View\View;
 
 class BotController extends Controller
 {
-    public function index(): View
+    public function index()
     {
-        $bots = auth()->user()->company->bots()->paginate(10);
-        return view('bots.index', compact('bots'));
+        $bot = auth()->user()->bot;
+        if (!$bot) {
+            return view('bots.index', ['bot' => null]);
+        }
+        return redirect()->route('bots.show', $bot);
     }
 
     public function show(Bot $bot): View
@@ -30,19 +33,15 @@ class BotController extends Controller
             'requires_admin_approval' => ['boolean'],
             'greeting' => ['required', 'array'],
             'greeting.uz' => ['required', 'string', 'max:500'],
-            'greeting.kk' => ['nullable', 'string', 'max:500'],
-            'greeting.kz' => ['nullable', 'string', 'max:500'],
-            'greeting.tj' => ['nullable', 'string', 'max:500'],
+            'greeting.en' => ['nullable', 'string', 'max:500'],
             'greeting.ru' => ['nullable', 'string', 'max:500'],
             'about' => ['required', 'array'],
             'about.uz' => ['required', 'string', 'max:1000'],
-            'about.kk' => ['nullable', 'string', 'max:1000'],
-            'about.kz' => ['nullable', 'string', 'max:1000'],
-            'about.tj' => ['nullable', 'string', 'max:1000'],
+            'about.en' => ['nullable', 'string', 'max:1000'],
             'about.ru' => ['nullable', 'string', 'max:1000'],
         ]);
 
-        foreach (['kk', 'kz', 'tj', 'ru'] as $lang) {
+        foreach (['en', 'ru'] as $lang) {
             if (empty($validated['greeting'][$lang])) {
                 $validated['greeting'][$lang] = $validated['greeting']['uz'];
             }

@@ -30,11 +30,11 @@
 
     <!-- Languages -->
     <div>
-        <label class="block text-xs font-medium text-gray-600 mb-2">Greeting & About (5 Languages)</label>
+        <label class="block text-xs font-medium text-gray-600 mb-2">Greeting & About (3 Languages)</label>
 
         <!-- Language Tabs -->
         <div class="flex gap-1 mb-4 border-b border-gray-100">
-            @foreach(['uz', 'kk', 'kz', 'tj', 'ru'] as $lang)
+            @foreach(['uz', 'en', 'ru'] as $lang)
                 <button
                     type="button"
                     wire:click="switchLang('{{ $lang }}')"
@@ -44,14 +44,8 @@
                         @case('uz')
                             🇺🇿 O'z
                             @break
-                        @case('kk')
-                            🏳️ Қар
-                            @break
-                        @case('kz')
-                            🇰🇿 Қаз
-                            @break
-                        @case('tj')
-                            🇹🇯 Тоҷ
+                        @case('en')
+                            🇬🇧 Eng
                             @break
                         @case('ru')
                             🇷🇺 Рус
@@ -62,7 +56,7 @@
         </div>
 
         <!-- Language Content -->
-        @foreach(['uz', 'kk', 'kz', 'tj', 'ru'] as $lang)
+        @foreach(['uz', 'en', 'ru'] as $lang)
             @if($currentLang === $lang)
                 <div class="space-y-3">
                     <div>

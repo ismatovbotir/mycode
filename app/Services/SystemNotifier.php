@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Models\Company;
+use App\Models\User;
 use Illuminate\Support\Facades\Log;
 
 class SystemNotifier
@@ -29,9 +29,9 @@ class SystemNotifier
         }
     }
 
-    public function notifyCompany(Company $company, string $message): void
+    public function notifyUser(User $user, string $message): void
     {
-        if (!$company->owner?->tg_chat_id) {
+        if (!$user->tg_chat_id) {
             return;
         }
 
@@ -42,10 +42,10 @@ class SystemNotifier
         }
 
         try {
-            $this->telegram->sendMessage($token, (int) $company->owner->tg_chat_id, $message);
+            $this->telegram->sendMessage($token, (int) $user->tg_chat_id, $message);
         } catch (\Throwable $e) {
-            Log::error('Failed to notify company', [
-                'company_id' => $company->id,
+            Log::error('Failed to notify user', [
+                'user_id' => $user->id,
                 'error' => $e->getMessage(),
             ]);
         }

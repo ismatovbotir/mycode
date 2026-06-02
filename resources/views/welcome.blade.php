@@ -1411,10 +1411,10 @@
                     </div>
                     <div>
                         <label class="text-xs font-medium text-ink-300 uppercase tracking-wider"
-                            data-i18n="cta.formCompany">Компания</label>
+                            data-i18n="cta.formUser">Компания</label>
                         <input
                             class="mt-1.5 w-full bg-ink-900/60 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-ink-500 focus:outline-none focus:border-brand-500"
-                            data-i18n-attr="placeholder:cta.formCompanyPh" placeholder="ООО Магазин" />
+                            data-i18n-attr="placeholder:cta.formUserPh" placeholder="ООО Магазин" />
                     </div>
                     <a href="{{ route('register') }}"
                         class="block w-full text-center bg-brand-600 hover:bg-brand-700 transition text-white font-semibold py-3.5 rounded-xl shadow-cardLg"

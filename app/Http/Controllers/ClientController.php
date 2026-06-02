@@ -9,11 +9,12 @@ class ClientController extends Controller
 {
     public function index(): View
     {
-        $company = auth()->user()->company;
-        $clients = BotClient::whereHas('bot', fn($q) => $q->where('company_id', $company->id))
-            ->with(['tgUser', 'bot'])
-            ->paginate(20);
+        $bot = auth()->user()->bot;
+        if (!$bot) {
+            return view('clients.index', ['clients' => collect()]);
+        }
 
+        $clients = $bot->clients()->with('tgUser')->paginate(20);
         return view('clients.index', compact('clients'));
     }
 }

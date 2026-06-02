@@ -33,9 +33,8 @@ class BotEventTemplates extends Component
             $template = $this->bot->eventTemplates()->where('event_type', $eventType)->first();
             $this->templates[$eventType] = [
                 'uz' => $template?->messages['uz'] ?? '',
+                'en' => $template?->messages['en'] ?? '',
                 'ru' => $template?->messages['ru'] ?? '',
-                'tj' => $template?->messages['tj'] ?? '',
-                'kk' => $template?->messages['kk'] ?? '',
             ];
         }
     }
@@ -54,7 +53,7 @@ class BotEventTemplates extends Component
     {
         $messages = $this->templates[$eventType];
 
-        foreach (['ru', 'tj', 'kk'] as $lang) {
+        foreach (['en', 'ru'] as $lang) {
             if (empty($messages[$lang])) {
                 $messages[$lang] = $messages['uz'];
             }

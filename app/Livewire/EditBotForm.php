@@ -37,19 +37,15 @@ class EditBotForm extends Component
             'requires_admin_approval' => ['boolean'],
             'greeting' => ['required', 'array'],
             'greeting.uz' => ['required', 'string', 'max:500'],
-            'greeting.kk' => ['nullable', 'string', 'max:500'],
-            'greeting.kz' => ['nullable', 'string', 'max:500'],
-            'greeting.tj' => ['nullable', 'string', 'max:500'],
+            'greeting.en' => ['nullable', 'string', 'max:500'],
             'greeting.ru' => ['nullable', 'string', 'max:500'],
             'about' => ['required', 'array'],
             'about.uz' => ['required', 'string', 'max:1000'],
-            'about.kk' => ['nullable', 'string', 'max:1000'],
-            'about.kz' => ['nullable', 'string', 'max:1000'],
-            'about.tj' => ['nullable', 'string', 'max:1000'],
+            'about.en' => ['nullable', 'string', 'max:1000'],
             'about.ru' => ['nullable', 'string', 'max:1000'],
         ]);
 
-        foreach (['kk', 'kz', 'tj', 'ru'] as $lang) {
+        foreach (['en', 'ru'] as $lang) {
             if (empty($this->greeting[$lang])) {
                 $this->greeting[$lang] = $this->greeting['uz'];
             }

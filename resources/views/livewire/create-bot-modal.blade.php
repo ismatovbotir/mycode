@@ -65,11 +65,11 @@
 
                     <!-- Languages -->
                     <div>
-                        <label class="block text-xs font-medium text-gray-600 mb-2">Greeting & About (5 Languages)</label>
+                        <label class="block text-xs font-medium text-gray-600 mb-2">Greeting & About (3 Languages)</label>
 
                         <!-- Language Tabs -->
                         <div class="flex gap-1 mb-3 border-b border-gray-100 overflow-x-auto">
-                            @foreach(['uz', 'kk', 'kz', 'tj', 'ru'] as $lang)
+                            @foreach(['uz', 'en', 'ru'] as $lang)
                                 <button
                                     type="button"
                                     wire:click="switchLang('{{ $lang }}')"
@@ -78,14 +78,8 @@
                                         @case('uz')
                                             🇺🇿 O'z
                                             @break
-                                        @case('kk')
-                                            🏳️ Қар
-                                            @break
-                                        @case('kz')
-                                            🇰🇿 Қаз
-                                            @break
-                                        @case('tj')
-                                            🇹🇯 Тоҷ
+                                        @case('en')
+                                            🇬🇧 Eng
                                             @break
                                         @case('ru')
                                             🇷🇺 Рус
@@ -103,17 +97,9 @@
                                         'greeting' => "Assalomu alaikum! 👋\n\nBo'timizga xush kelibsiz. Men sizning savollarga javob berishga va kerakli ma'lumotlarni berish uchun tayyorman.",
                                         'about' => "🤖 Avtomatik xizmat boti\n\n✅ Tez javoblar\n✅ 24/7 mavjud\n✅ Oson foydalanish\n\nBizning bilan bog'lanish uchun /start bosing."
                                     ],
-                                    'kk' => [
-                                        'greeting' => "Assalomu alaikum! 👋\n\nBiziń botına xosh kelibeniz. Men sizdi qollanyw hám kerekli informatsiyanı beriwde tolıq dáyin.",
-                                        'about' => "🤖 Avtomatik qyzmet boti\n\n✅ Tez jawaplar\n✅ 24/7 mavjud\n✅ Oson paidalanıw\n\nBastaw ushın /start basıń."
-                                    ],
-                                    'kz' => [
-                                        'greeting' => "Сәлеметсіз бе! 👋\n\nБотымызға қош келдіңіз. Мен сізге көмектесуге және қажетті ақпаратты беруге дайынмын.",
-                                        'about' => "🤖 Автоматтық қызмет боты\n\n✅ Жылдам жауап\n✅ 24/7 қол жетімді\n✅ Оңай пайдалану\n\nБастау uchun /start басыңыз."
-                                    ],
-                                    'tj' => [
-                                        'greeting' => "Assalom! 👋\n\nБа ботҳо хуш омадед. Ман барои ҷавобӣ ба саволҳо ва намудани иттилоотҳои зарурӣ барзамин устодам.",
-                                        'about' => "🤖 Ботҳои хидматҳои автоматӣ\n\n✅ Ҷавобҳои зуд\n✅ 24/7 мавҷуд\n✅ Қаблӣ истифода бурдан\n\nБарои оғоз /start зан занед."
+                                    'en' => [
+                                        'greeting' => "Welcome! 👋\n\nHello and welcome to our bot. I'm ready to answer your questions and provide all the necessary information.",
+                                        'about' => "🤖 Automated Support Bot\n\n✅ Quick responses\n✅ Available 24/7\n✅ Easy to use\n\nPress /start to begin."
                                     ],
                                     'ru' => [
                                         'greeting' => "Добро пожаловать! 👋\n\nВы попали на нашего помощника. Я готов ответить на ваши вопросы и предоставить необходимую информацию.",
@@ -122,7 +108,7 @@
                                 ];
                             @endphp
 
-                            @foreach(['uz', 'kk', 'kz', 'tj', 'ru'] as $lang)
+                            @foreach(['uz', 'en', 'ru'] as $lang)
                                 @if($currentLang === $lang)
                                     <div>
                                         <div class="flex items-center justify-between mb-1.5">
@@ -183,6 +169,94 @@
                             <svg class="animate-spin inline w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                             Creating...
                         </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    <!-- Webhook Configuration Modal -->
+    @if($showWebhookModal && $createdBot)
+        <div class="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" wire:click="closeWebhookModal">
+            <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto" @click.stop>
+                <!-- Header -->
+                <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white">
+                    <div>
+                        <h2 class="font-semibold">✅ Bot Created Successfully!</h2>
+                        <p class="text-xs text-gray-500 mt-1">Your Telegram bot webhook is configured</p>
+                    </div>
+                    <button wire:click="closeWebhookModal" class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </div>
+
+                <!-- Content -->
+                <div class="px-6 py-5 space-y-5">
+                    <!-- Success Alert -->
+                    <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                        <div class="flex gap-3">
+                            <svg class="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            <div>
+                                <h3 class="font-semibold text-green-900 text-sm">Webhook Setup Complete</h3>
+                                <p class="text-xs text-green-700 mt-1">Your bot is now receiving messages from Telegram. No additional configuration needed on Telegram's side.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Webhook URL -->
+                    <div>
+                        <label class="block text-xs font-medium text-gray-600 mb-2">Webhook URL</label>
+                        <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 font-mono text-xs text-gray-700 overflow-x-auto break-all">
+                            {{ route('telegram.webhook', ['bot' => $createdBot->id], true) }}
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">This is the endpoint that receives updates from Telegram</p>
+                    </div>
+
+                    <!-- Webhook Secret -->
+                    <div>
+                        <label class="block text-xs font-medium text-gray-600 mb-2">Webhook Secret</label>
+                        <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 font-mono text-xs text-gray-700 break-all">
+                            {{ $createdBot->webhook_secret }}
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">Used to verify webhook requests from Telegram</p>
+                    </div>
+
+                    <!-- Response Format -->
+                    <div>
+                        <label class="block text-xs font-medium text-gray-600 mb-2">Response Format</label>
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                            <p class="text-xs text-blue-900 mb-2 font-medium">Expected JSON response on successful event processing:</p>
+                            <pre class="bg-gray-900 text-gray-100 text-xs p-3 rounded overflow-x-auto"><code>{
+  "status": "received",
+  "eventType": "entity.demand.create"
+}</code></pre>
+                            <p class="text-xs text-blue-700 mt-2">Status codes:</p>
+                            <ul class="text-xs text-blue-700 mt-1 space-y-1 list-disc list-inside">
+                                <li><strong>200 OK</strong> - Event processed successfully</li>
+                                <li><strong>403 Forbidden</strong> - Invalid webhook secret</li>
+                                <li><strong>400 Bad Request</strong> - Missing or invalid eventType</li>
+                                <li><strong>500 Server Error</strong> - Processing error</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Info -->
+                    <div class="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                        <p class="text-xs text-amber-900">
+                            <strong>ℹ️ Note:</strong> Your webhook is already configured in Telegram. Messages from МойСклад events will be automatically processed and sent to your users.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="px-6 py-4 border-t border-gray-100 flex justify-end gap-2">
+                    <button
+                        type="button"
+                        wire:click="closeWebhookModal"
+                        class="text-sm bg-brand-600 text-white font-medium px-4 py-2 rounded-lg hover:bg-brand-700 transition-colors">
+                        Got it! Close
                     </button>
                 </div>
             </div>

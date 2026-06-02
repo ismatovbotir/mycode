@@ -45,55 +45,13 @@
         </div>
     </div>
 
-    <!-- Tabs -->
-    <div class="bg-white rounded-xl border border-gray-200">
-        <div class="flex border-b border-gray-100">
-            <button onclick="switchTab('settings')" class="tab-button px-6 py-4 text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 transition-colors active" data-tab="settings">
-                Settings
-            </button>
-            <button onclick="switchTab('templates')" class="tab-button px-6 py-4 text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 transition-colors" data-tab="templates">
-                Event Templates
-            </button>
-            <button onclick="switchTab('clients')" class="tab-button px-6 py-4 text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 transition-colors" data-tab="clients">
-                Clients
-            </button>
-            <a href="{{ route('integrations.index', $bot) }}" class="px-6 py-4 text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 transition-colors">
-                Integrations
-            </a>
-        </div>
-
-        <!-- Settings Tab -->
-        <div id="tab-settings" class="tab-content p-6 active">
-            <livewire:edit-bot-form :bot="$bot" :key="'edit-'.$bot->id" />
-        </div>
-
-        <!-- Templates Tab -->
-        <div id="tab-templates" class="tab-content p-6 hidden">
-            <livewire:bot-event-templates :bot="$bot" />
-        </div>
-
-        <!-- Clients Tab -->
-        <div id="tab-clients" class="tab-content p-6 hidden">
-            @php
-                $clients = $bot->clients()->with('tgUser')->limit(50)->get();
-            @endphp
-            @include('bots.clients-table', ['clients' => $clients])
-        </div>
+    <!-- Settings -->
+    <div class="bg-white rounded-xl border border-gray-200 p-6">
+        <livewire:edit-bot-form :bot="$bot" :key="'edit-'.$bot->id" />
     </div>
 </div>
 
 <script>
-    function switchTab(tabName) {
-        document.querySelectorAll('.tab-button').forEach(btn => {
-            btn.classList.remove('border-brand-600', 'text-brand-600', 'active');
-            btn.classList.add('border-transparent', 'text-gray-600');
-        });
-        document.querySelector(`[data-tab="${tabName}"]`).classList.add('border-brand-600', 'text-brand-600', 'active');
-
-        document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
-        document.getElementById(`tab-${tabName}`).classList.remove('hidden');
-    }
-
     function copyToClipboard(text) {
         navigator.clipboard.writeText(text).then(() => {
             alert('Copied!');

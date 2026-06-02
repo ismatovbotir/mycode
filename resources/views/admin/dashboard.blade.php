@@ -21,7 +21,7 @@
                 <p class="text-xs text-gray-500 font-medium">Companies</p>
                 <svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16"/></svg>
             </div>
-            <p class="text-3xl font-bold">{{ \App\Models\Company::count() }}</p>
+            <p class="text-3xl font-bold">{{ \App\Models\User::count() }}</p>
             <p class="text-xs text-green-600 mt-1">↑ Active</p>
         </div>
 
@@ -53,43 +53,43 @@
         </div>
     </div>
 
-    <!-- Recent Companies -->
+    <!-- Recent Users -->
     <div class="bg-white rounded-xl border border-gray-200">
         <div class="px-5 py-4 border-b border-gray-100">
-            <h2 class="text-sm font-semibold">Recent Companies</h2>
+            <h2 class="text-sm font-semibold">Recent Users</h2>
         </div>
         <div class="overflow-x-auto">
             <table class="w-full text-sm">
                 <thead class="bg-gray-50 border-b border-gray-100">
                     <tr>
-                        <th class="px-4 py-3 text-left font-medium text-gray-700">Company Name</th>
-                        <th class="px-4 py-3 text-left font-medium text-gray-700">Owner</th>
+                        <th class="px-4 py-3 text-left font-medium text-gray-700">Name</th>
+                        <th class="px-4 py-3 text-left font-medium text-gray-700">Email</th>
                         <th class="px-4 py-3 text-left font-medium text-gray-700">Bots</th>
-                        <th class="px-4 py-3 text-left font-medium text-gray-700">Clients</th>
+                        <th class="px-4 py-3 text-left font-medium text-gray-700">Role</th>
                         <th class="px-4 py-3 text-left font-medium text-gray-700">Created</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-50">
-                    @forelse(\App\Models\Company::with('users', 'bots')->latest()->take(10)->get() as $company)
+                    @forelse(\App\Models\User::with('bot')->latest()->take(10)->get() as $user)
                         <tr class="hover:bg-gray-50 transition-colors">
-                            <td class="px-4 py-3 font-medium">{{ $company->name }}</td>
-                            <td class="px-4 py-3 text-gray-600">{{ $company->users->first()?->name ?? '—' }}</td>
+                            <td class="px-4 py-3 font-medium">{{ $user->name }}</td>
+                            <td class="px-4 py-3 text-gray-600">{{ $user->email }}</td>
                             <td class="px-4 py-3">
                                 <span class="px-2 py-1 rounded-full text-xs bg-blue-50 text-blue-700 font-medium">
-                                    {{ $company->bots->count() }}
+                                    {{ $user->bot ? 1 : 0 }}
                                 </span>
                             </td>
-                            <td class="px-4 py-3 text-gray-600">
-                                {{ $company->bots->sum(fn($b) => $b->clients->count()) }}
+                            <td class="px-4 py-3 text-gray-600 text-xs">
+                                <span class="px-2 py-1 rounded bg-gray-100">{{ $user->role }}</span>
                             </td>
                             <td class="px-4 py-3 text-gray-600 text-xs">
-                                {{ $company->created_at->diffForHumans() }}
+                                {{ $user->created_at->diffForHumans() }}
                             </td>
                         </tr>
                     @empty
                         <tr>
                             <td colspan="5" class="px-4 py-8 text-center text-gray-500 text-sm">
-                                No companies yet
+                                No users yet
                             </td>
                         </tr>
                     @endforelse

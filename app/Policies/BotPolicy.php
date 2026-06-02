@@ -9,16 +9,16 @@ class BotPolicy
 {
     public function view(User $user, Bot $bot): bool
     {
-        return $user->company_id === $bot->company_id;
+        return $user->id === $bot->user_id;
     }
 
     public function update(User $user, Bot $bot): bool
     {
-        return $user->company_id === $bot->company_id;
+        return $user->id === $bot->user_id;
     }
 
     public function delete(User $user, Bot $bot): bool
     {
-        return $user->company_id === $bot->company_id;
+        return $user->id === $bot->user_id;
     }
 }

@@ -56,10 +56,8 @@ class TelegramService
     {
         $buttons = [
             'uz' => 'Telefon raqamni yuborish',
+            'en' => 'Send phone number',
             'ru' => 'Отправить номер телефона',
-            'tj' => 'Фиристани рақами телефон',
-            'kk' => 'Телефон номерин жібергіз',
-            'kz' => 'Телефон номерін жіберіңіз',
         ];
 
         $text = $buttons[$lang] ?? $buttons['ru'];
@@ -74,12 +72,14 @@ class TelegramService
 
     public function sendLanguageKeyboard(string $token, int $chatId): void
     {
-        $this->sendMessage($token, $chatId, 'Tilni tanla / Выберите язык / Забони интихоб кун / Тілді таңдаңыз', [
+        $this->sendMessage($token, $chatId, 'Tilni tanla / Choose language / Выберите язык', [
             'one_time_keyboard' => true,
             'keyboard' => [
-                [['text' => '🇺🇿 O\'zbek'], ['text' => '🇷🇺 Русский']],
-                [['text' => '🇹🇯 Тоҷикӣ'], ['text' => '🇰🇿 Қазақша']],
-                [['text' => '🏳️ Қарақалпақ']],
+                [
+                    ['text' => '🇺🇿 O\'zbek'],
+                    ['text' => '🇬🇧 English'],
+                    ['text' => '🇷🇺 Русский'],
+                ],
             ],
         ]);
     }

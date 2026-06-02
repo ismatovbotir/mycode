@@ -4,8 +4,8 @@
 <div class="p-6">
     <!-- Header -->
     <div class="mb-6">
-        <h1 class="text-2xl font-semibold">All Clients</h1>
-        <p class="text-sm text-gray-500 mt-1">Manage clients across all bots and organize them into groups</p>
+        <h1 class="text-2xl font-semibold">Clients</h1>
+        <p class="text-sm text-gray-500 mt-1">Manage your bot clients and organize them into groups</p>
     </div>
 
     @if(session('success'))
@@ -18,7 +18,7 @@
         <!-- Sidebar: Group Management -->
         <div class="lg:col-span-1">
             <div class="bg-white rounded-xl border border-gray-200 p-4 sticky top-6">
-                <livewire:client-group-manager :company="auth()->user()->company" />
+                <livewire:client-group-manager />
             </div>
         </div>
 

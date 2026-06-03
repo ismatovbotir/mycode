@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class MoySkladService
 {
@@ -159,23 +160,26 @@ class MoySkladService
     public function createWebhook(string $entityType, string $webhookUrl, string $action = 'CREATE'): ?array
     {
         $url = 'https://api.moysklad.ru/api/remap/1.2/entity/webhook';
+        $payload = [
+            'url' => $webhookUrl,
+            'action' => $action,
+            'entityType' => $entityType,
+        ];
+
         try {
             $response = Http::withHeaders([
                 'Authorization' => "Bearer {$this->token}",
                 'Content-Type' => 'application/json',
                 'Accept-Encoding' => 'gzip',
-            ])->timeout(20)->post($url, [
-                'url' => $webhookUrl,
-                'action' => $action,
-                'entityType' => $entityType,
-            ]);
+            ])->timeout(20)->post($url, $payload);
 
             if (!$response->successful()) {
-                \Log::error('МойСклад webhook creation failed', [
+                Log::error('МойСклад webhook creation failed', [
                     'entity' => $entityType,
                     'action' => $action,
                     'status' => $response->status(),
-                    'body' => $response->body(),
+                    'request_body' => $payload,
+                    'response_body' => $response->body(),
                 ]);
                 return null;
             }
@@ -186,11 +190,14 @@ class MoySkladService
                 'url' => $data['url'] ?? $webhookUrl,
                 'action' => $data['action'] ?? $action,
                 'entityType' => $data['entityType'] ?? $entityType,
+                'request_body' => $payload,
+                'response' => $data,
             ];
         } catch (\Exception $e) {
-            \Log::error('МойСклад webhook creation exception', [
+            Log::error('МойСклад webhook creation exception', [
                 'entity' => $entityType,
                 'action' => $action,
+                'request_body' => $payload,
                 'error' => $e->getMessage(),
             ]);
             return null;

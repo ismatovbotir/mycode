@@ -11,32 +11,18 @@ use Illuminate\Support\Facades\Auth;
 
 class Entities extends Component
 {
-    public ?int $selectedEntityId = null;
-    public string $showActivateModal = '';
-    public bool $isActivating = false;
-    public array $activationSteps = [];
-    public int $currentStep = 0;
+    public string $bearer_token = '';
+    public bool $testing = false;
+    public ?string $test_message = null;
+    public bool $test_passed = false;
+    public bool $showRetryModal = false;
+    public ?string $retryingUserEntityId = null;
+    public ?string $retryCommand = null;
+    public ?string $retryUrl = null;
+    public ?array $retryPayload = null;
+    public ?array $retryResponse = null;
 
-    public function getAvailableEntitiesProperty()
-    {
-        /** @var \App\Models\User|null $user */
-        $user = Auth::user();
-
-        if (!$user) {
-            return collect();
-        }
-
-        $userEntityIds = $user->entities()
-            ->pluck('entity_id')
-            ->toArray();
-
-        return Entity::where('is_active', true)
-            ->whereNotIn('id', $userEntityIds)
-            ->orderBy('type')
-            ->get();
-    }
-
-    public function getActiveSystemEntitiesProperty()
+    public function getAllEntitiesProperty()
     {
         return Entity::where('is_active', true)
             ->orderBy('type')
@@ -58,51 +44,102 @@ class Entities extends Component
             ->get();
     }
 
-    public function openActivateModal(int $entityId): void
+    public function activateEntity(int $entityId): void
     {
-        $this->selectedEntityId = $entityId;
-        $this->showActivateModal = 'true';
-    }
-
-    public function closeActivateModal(): void
-    {
-        $this->selectedEntityId = null;
-        $this->showActivateModal = '';
-    }
-
-    public function activateEntity(): void
-    {
-        if (!$this->selectedEntityId) {
-            return;
-        }
-
-        $entity = Entity::findOrFail($this->selectedEntityId);
+        $entity = Entity::findOrFail($entityId);
         $user = Auth::user();
 
         if (!$user || !$user->moysklad_token) {
-            $this->dispatch('error', message: 'МойСклад token not configured. Please set it up first.');
+            session()->flash('error', 'МойСклад token not configured. Please set it up first.');
             return;
         }
 
-        // Initialize activation steps
-        $this->isActivating = true;
-        $this->currentStep = 0;
-        $this->activationSteps = [
-            ['action' => 'CREATE', 'status' => 'pending', 'message' => 'Creating webhook for CREATE action...'],
-            ['action' => 'UPDATE', 'status' => 'pending', 'message' => 'Creating webhook for UPDATE action...'],
-            ['action' => 'DELETE', 'status' => 'pending', 'message' => 'Creating webhook for DELETE action...'],
-        ];
-
         try {
             $this->createMoySkladWebhooks($entity, $user);
-            session()->flash('success', "Entity '{$entity->type}' activated successfully");
-            $this->closeActivateModal();
-            $this->isActivating = false;
-            $this->dispatch('refresh');
+            session()->flash('success', "Entity '{$entity->type}' activated successfully!");
         } catch (\Exception $e) {
-            $this->activationSteps[$this->currentStep]['status'] = 'failed';
-            $this->activationSteps[$this->currentStep]['message'] = 'Failed: ' . $e->getMessage();
-            $this->isActivating = false;
+            session()->flash('error', "Failed to activate: " . $e->getMessage());
+        }
+    }
+
+    public function openRetryModal(string $userEntityId): void
+    {
+        /** @var \App\Models\UserEntity $userEntity */
+        $userEntity = \App\Models\UserEntity::findOrFail($userEntityId);
+
+        $this->retryingUserEntityId = $userEntityId;
+        $this->retryCommand = $userEntity->action;
+        $this->retryUrl = route('webhook.moysklad.entity', ['user_entity' => $userEntity->id], absolute: true);
+        $this->retryPayload = [
+            'url' => $this->retryUrl,
+            'action' => $userEntity->action,
+            'entityType' => $userEntity->entity->type,
+        ];
+        $this->showRetryModal = true;
+
+        // Auto-execute retry after modal is shown
+        $this->dispatch('executeRetry', userEntityId: $userEntityId);
+    }
+
+    public function closeRetryModal(): void
+    {
+        $this->showRetryModal = false;
+        $this->retryingUserEntityId = null;
+        $this->retryCommand = null;
+        $this->retryUrl = null;
+        $this->retryPayload = null;
+        $this->retryResponse = null;
+    }
+
+    public function executeRetry(string $userEntityId): void
+    {
+        /** @var \App\Models\UserEntity $userEntity */
+        $userEntity = \App\Models\UserEntity::findOrFail($userEntityId);
+        $user = Auth::user();
+
+        if (!$user || !$user->moysklad_token) {
+            session()->flash('error', 'МойСклад token not configured.');
+            $this->closeRetryModal();
+            return;
+        }
+
+        try {
+            /** @var string $token */
+            $token = $user->moysklad_token;
+            $moySkladService = new \App\Services\MoySkladService($token);
+
+            $webhookUrl = route('webhook.moysklad.entity', ['user_entity' => $userEntity->id], absolute: true);
+            $result = $moySkladService->createWebhook($userEntity->entity->type, $webhookUrl, $userEntity->action);
+
+            // Store response to display in modal
+            $this->retryResponse = $result ? [
+                'success' => isset($result['id']),
+                'data' => $result['response'] ?? $result ?? [],
+            ] : [
+                'success' => false,
+                'data' => ['error' => 'No response from МойСклад'],
+            ];
+
+            if (!$result || !isset($result['id'])) {
+                session()->flash('error', "Failed to create {$userEntity->action} webhook");
+                return;
+            }
+
+            $userEntity->update([
+                'ms_id' => $result['id'],
+                'messages' => json_encode([
+                    'request_body' => $result['request_body'] ?? null,
+                    'response' => $result['response'] ?? $result,
+                ]),
+            ]);
+
+            session()->flash('success', "{$userEntity->action} webhook created successfully!");
+        } catch (\Exception $e) {
+            $this->retryResponse = [
+                'success' => false,
+                'data' => ['error' => $e->getMessage()],
+            ];
+            session()->flash('error', "Retry failed: " . $e->getMessage());
         }
     }
 
@@ -117,10 +154,10 @@ class Entities extends Component
         $token = $user->moysklad_token;
         $moySkladService = new \App\Services\MoySkladService($token);
 
-        // Create user_entity records and webhooks for each action type
-        foreach (['CREATE', 'UPDATE', 'DELETE'] as $index => $action) {
-            $this->currentStep = $index;
+        $errors = [];
 
+        // Create user_entity records and webhooks for each action type
+        foreach (['CREATE', 'UPDATE', 'DELETE'] as $action) {
             try {
                 // 1. Create user_entity record
                 $userEntity = new \App\Models\UserEntity([
@@ -137,32 +174,102 @@ class Entities extends Component
                 $result = $moySkladService->createWebhook($entity->type, $webhookUrl, $action);
 
                 if (!$result || !isset($result['id'])) {
-                    $userEntity->delete();
-                    throw new \Exception("Failed to create {$action} webhook for {$entity->type}");
+                    $errorMsg = "Failed to create {$action} webhook";
+                    $userEntity->update([
+                        'messages' => json_encode([
+                            'error' => $errorMsg,
+                            'failed_at' => now()->toDateTimeString(),
+                        ]),
+                    ]);
+                    $errors[] = $errorMsg;
+                    continue;
                 }
 
                 // 4. Update user_entity record with webhook ID
                 $userEntity->update([
                     'ms_id' => $result['id'],
-                    'messages' => json_encode(['webhook_response' => $result]),
+                    'messages' => json_encode([
+                        'request_body' => $result['request_body'] ?? null,
+                        'response' => $result['response'] ?? $result,
+                    ]),
                 ]);
-
-                // Mark step as completed
-                $this->activationSteps[$index]['status'] = 'completed';
-                $this->activationSteps[$index]['message'] = "✓ {$action} webhook created (ID: {$result['id']})";
             } catch (\Exception $e) {
-                $this->activationSteps[$index]['status'] = 'failed';
-                $this->activationSteps[$index]['message'] = "✗ {$action}: " . $e->getMessage();
-                throw $e;
+                $errorMsg = $e->getMessage();
+                $userEntity->update([
+                    'messages' => json_encode([
+                        'error' => $errorMsg,
+                        'failed_at' => now()->toDateTimeString(),
+                    ]),
+                ]);
+                $errors[] = "{$action}: " . $errorMsg;
+                continue;
             }
         }
+
+        if (!empty($errors)) {
+            throw new \Exception("Some webhooks failed: " . implode(", ", $errors));
+        }
+    }
+
+    public function testConnection(): void
+    {
+        $this->validate([
+            'bearer_token' => 'required|string|min:10',
+        ]);
+
+        $this->testing = true;
+        $this->test_passed = false;
+
+        try {
+            $service = new \App\Services\MoySkladService($this->bearer_token);
+            $result = $service->testConnection();
+
+            if ($result['success'] ?? false) {
+                $this->test_message = '✓ Connection successful!';
+                $this->test_passed = true;
+            } else {
+                $this->test_message = '✗ Invalid token. HTTP ' . ($result['status_code'] ?? 0);
+                $this->test_passed = false;
+            }
+        } catch (\Exception $e) {
+            $this->test_message = '✗ Connection failed: ' . $e->getMessage();
+            $this->test_passed = false;
+        } finally {
+            $this->testing = false;
+        }
+    }
+
+    public function saveToken(): void
+    {
+        if (!$this->test_passed) {
+            $this->addError('test', 'Please test connection first');
+            return;
+        }
+
+        $this->validate([
+            'bearer_token' => 'required|string|min:10',
+        ]);
+
+        $user = Auth::user();
+        $user->update([
+            'moysklad_token' => $this->bearer_token,
+        ]);
+
+        session()->flash('success', 'МойСклад token saved!');
+        $this->bearer_token = '';
+        $this->test_message = null;
+        $this->test_passed = false;
     }
 
     public function render()
     {
+        /** @var \App\Models\User|null $user */
+        $user = Auth::user();
+        $hasToken = $user && !empty($user->moysklad_token);
+
         return view('livewire.admin.entities', [
-            'availableEntities' => $this->availableEntities,
-            'activeSystemEntities' => $this->activeSystemEntities,
+            'hasToken' => $hasToken,
+            'allEntities' => $this->allEntities,
             'userEntities' => $this->userEntities,
         ]);
     }

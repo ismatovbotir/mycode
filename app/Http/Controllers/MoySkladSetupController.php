@@ -11,6 +11,6 @@ class MoySkladSetupController extends Controller
 {
     public function index(): View
     {
-        return view('moysklad-setup.index');
+        return view('moysklad-setup');
     }
 }

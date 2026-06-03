@@ -42,7 +42,7 @@ Route::middleware('auth')->group(function () {
 });
 
 // User Dashboard Routes
-Route::middleware(['auth', 'ensure.moysklad.token'])->group(function () {
+Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', fn() => view('dashboard-admin'))->name('dashboard');
 
     Route::get('/bots', [BotController::class, 'index'])->name('bots.index');
@@ -88,12 +88,3 @@ Route::middleware(['auth', 'super.admin'])->prefix('admin')->name('admin.')->gro
     // МойСклад Webhooks Management
     Route::get('/moysklad-webhooks', fn() => view('admin.moysklad-webhooks'))->name('moysklad-webhooks.index');
 });
-
-Route::post('/webhook/telegram/{bot}', [\App\Http\Controllers\Webhook\TelegramWebhookController::class, 'handle'])
-    ->name('telegram.webhook');
-
-Route::post('/webhook/moisklad/{bot}', [\App\Http\Controllers\Webhook\MoySkladWebhookController::class, 'handle'])
-    ->name('moisklad.webhook');
-
-Route::post('/api/webhook/ms/{user_entity}', [\App\Http\Controllers\Webhook\EntityWebhookController::class, 'handle'])
-    ->name('webhook.moysklad.entity');

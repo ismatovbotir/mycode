@@ -32,11 +32,13 @@
     </button>
 
     <!-- Test Result -->
-    @if($test_message)
-        <div class="p-4 rounded-lg {{ $test_passed ? 'bg-green-50 border border-green-200 text-green-700' : 'bg-red-50 border border-red-200 text-red-700' }} text-sm font-medium">
-            {{ $test_message }}
-        </div>
-    @endif
+    @isset($test_message)
+        @if($test_message)
+            <div class="p-4 rounded-lg {{ $test_passed ? 'bg-green-50 border border-green-200 text-green-700' : 'bg-red-50 border border-red-200 text-red-700' }} text-sm font-medium">
+                {{ $test_message }}
+            </div>
+        @endif
+    @endisset
 
     @error('test')
         <div class="p-4 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm font-medium">
@@ -45,38 +47,43 @@
     @enderror
 
     <!-- Response Details Link -->
-    @if($showModal && $requestUrl)
-        <button
-            type="button"
-            wire:click="$toggle('showModal')"
-            class="w-full px-4 py-2 text-sm text-gray-600 hover:text-blue-600 underline">
-            📋 View Response Details
-        </button>
-    @endif
+    @isset($showModal, $requestUrl)
+        @if($showModal && $requestUrl)
+            <button
+                type="button"
+                wire:click="$toggle('showModal')"
+                class="w-full px-4 py-2 text-sm text-gray-600 hover:text-blue-600 underline">
+                📋 View Response Details
+            </button>
+        @endif
+    @endisset
 
     <!-- Save Button -->
-    @if($test_passed)
-        <button
-            type="submit"
-            wire:loading.attr="disabled"
-            class="w-full px-4 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50">
-            <span wire:loading.remove>✓ Save & Continue</span>
-            <span wire:loading>
-                <svg class="animate-spin inline w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                Saving...
-            </span>
-        </button>
-    @else
-        <button
-            type="button"
-            disabled
-            class="w-full px-4 py-3 bg-gray-200 text-gray-600 font-semibold rounded-lg cursor-not-allowed">
-            ✓ Save & Continue (Test first)
-        </button>
-    @endif
+    @isset($test_passed)
+        @if($test_passed)
+            <button
+                type="submit"
+                wire:loading.attr="disabled"
+                class="w-full px-4 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50">
+                <span wire:loading.remove>✓ Save & Continue</span>
+                <span wire:loading>
+                    <svg class="animate-spin inline w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    Saving...
+                </span>
+            </button>
+        @else
+            <button
+                type="button"
+                disabled
+                class="w-full px-4 py-3 bg-gray-200 text-gray-600 font-semibold rounded-lg cursor-not-allowed">
+                ✓ Save & Continue (Test first)
+            </button>
+        @endif
+    @endisset
 </form>
 
 <!-- Response Details Modal -->
+@isset($showModal, $requestUrl, $responseCode, $requestMethod, $requestHeaders, $responseBody)
 @if($showModal && $requestUrl)
     <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" wire:click="closeModal">
         <div class="bg-white rounded-xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto" wire:click.stop>
@@ -215,3 +222,4 @@
         </div>
     </div>
 @endif
+@endisset

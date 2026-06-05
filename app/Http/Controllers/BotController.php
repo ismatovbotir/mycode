@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Bot;
 use App\Models\BotClient;
-use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class BotController extends Controller
@@ -12,60 +11,7 @@ class BotController extends Controller
     public function index()
     {
         $bot = auth()->user()->bot;
-        if (!$bot) {
-            return view('bots.index', ['bot' => null]);
-        }
-        return redirect()->route('bots.show', $bot);
-    }
-
-    public function show(Bot $bot): View
-    {
-        $this->authorize('view', $bot);
-        return view('bots.show', compact('bot'));
-    }
-
-    public function edit(Bot $bot): View
-    {
-        $this->authorize('update', $bot);
-        return view('bots.edit', compact('bot'));
-    }
-
-    public function update(Request $request, Bot $bot)
-    {
-        $this->authorize('update', $bot);
-
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'requires_admin_approval' => ['boolean'],
-            'greeting' => ['required', 'array'],
-            'greeting.uz' => ['required', 'string', 'max:500'],
-            'greeting.en' => ['nullable', 'string', 'max:500'],
-            'greeting.ru' => ['nullable', 'string', 'max:500'],
-            'about' => ['required', 'array'],
-            'about.uz' => ['required', 'string', 'max:1000'],
-            'about.en' => ['nullable', 'string', 'max:1000'],
-            'about.ru' => ['nullable', 'string', 'max:1000'],
-        ]);
-
-        foreach (['en', 'ru'] as $lang) {
-            if (empty($validated['greeting'][$lang])) {
-                $validated['greeting'][$lang] = $validated['greeting']['uz'];
-            }
-            if (empty($validated['about'][$lang])) {
-                $validated['about'][$lang] = $validated['about']['uz'];
-            }
-        }
-
-        $bot->update([
-            'name' => $validated['name'],
-            'requires_admin_approval' => $validated['requires_admin_approval'] ?? false,
-            'content' => [
-                'greeting' => $validated['greeting'],
-                'about' => $validated['about'],
-            ],
-        ]);
-
-        return redirect()->back()->with('success', 'Bot updated successfully!');
+        return view('bots.index', ['bot' => $bot]);
     }
 
     public function toggleActive(Bot $bot)

@@ -64,9 +64,7 @@
                                             </span>
                                         </td>
                                         <td class="px-4 py-3">
-                                            <a href="{{ route('bots.show', $client->bot) }}" class="text-brand-600 hover:underline text-xs font-medium">
-                                                {{ $client->bot->name }}
-                                            </a>
+                                            <span class="text-xs font-medium">{{ $client->bot->name }}</span>
                                         </td>
                                         <td class="px-4 py-3">
                                             <button

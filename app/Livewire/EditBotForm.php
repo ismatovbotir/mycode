@@ -67,7 +67,7 @@ class EditBotForm extends Component
         ]);
 
         session()->flash('success', 'Bot updated successfully!');
-        return redirect()->route('bots.show', $this->bot);
+        return redirect()->route('bots.index');
     }
 
     public function retryWebhook(): void
@@ -91,7 +91,7 @@ class EditBotForm extends Component
             session()->flash('error', 'Error setting webhook: ' . $e->getMessage());
         }
 
-        $this->redirect(route('bots.show', $this->bot));
+        $this->redirect(route('bots.index'));
     }
 
     public function render()

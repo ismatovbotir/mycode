@@ -11,9 +11,6 @@
                 <h1 class="text-3xl font-bold text-gray-900">Edit Bot</h1>
                 <p class="text-gray-600 mt-1">{{ $bot->name }}</p>
             </div>
-            <a href="{{ route('bots.show', $bot) }}" class="text-gray-600 hover:text-gray-900">
-                ← Back to Bot
-            </a>
         </div>
     </div>
 

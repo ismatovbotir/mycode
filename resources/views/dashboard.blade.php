@@ -52,11 +52,6 @@
                                             <livewire:set-webhook-button :bot="$bot" :key="'webhook-'.$bot->id" />
                                         </div>
                                     </div>
-                                    <div class="flex space-x-2">
-                                        <a href="{{ route('bots.show', $bot) }}" class="px-3 py-1 bg-blue-100 text-blue-600 rounded hover:bg-blue-200 text-sm">
-                                            View
-                                        </a>
-                                    </div>
                                 </div>
                             @endforeach
                         </div>

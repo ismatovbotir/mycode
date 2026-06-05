@@ -40,11 +40,29 @@ class CreateBotModal extends Component
                 $this->webhookInfo = null;
                 $this->webhookMessage = '';
 
-                // Fetch bot UUID from database by tg_bot_id
+                // Check if bot exists in database
                 $bot = Bot::where('tg_bot_id', $result['result']['id'])->first();
-                if ($bot) {
-                    $this->botUuid = $bot->id;
+
+                if (!$bot) {
+                    // Create new bot record
+                    $bot = Bot::create([
+                        'user_id' => auth()->user()->id,
+                        'name' => $result['result']['first_name'] ?? 'Telegram Bot',
+                        'tg_bot_token' => encrypt($this->tg_bot_token),
+                        'tg_bot_id' => $result['result']['id'],
+                        'tg_first_name' => $result['result']['first_name'] ?? null,
+                        'tg_username' => $result['result']['username'] ?? null,
+                        'tg_bot_metadata' => $result['result'],
+                        'content' => [
+                            'greeting' => ['uz' => '', 'en' => '', 'ru' => ''],
+                            'about' => ['uz' => '', 'en' => '', 'ru' => ''],
+                        ],
+                        'is_active' => true,
+                        'webhook_status' => false,
+                    ]);
                 }
+
+                $this->botUuid = $bot->id;
             } else {
                 $this->tokenVerified = false;
                 $this->verificationError = $result['message'] ?? 'Failed to verify token';

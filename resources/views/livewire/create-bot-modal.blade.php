@@ -6,7 +6,7 @@
     <div class="bg-white rounded-xl border border-gray-200 p-6 mb-6">
         <div class="flex gap-2">
             <input
-                type="password"
+                type="text"
                 wire:model="tg_bot_token"
                 placeholder="Enter Telegram bot token (from @BotFather)"
                 class="flex-1 text-sm border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-500 font-mono"/>
@@ -27,6 +27,11 @@
     @if($tokenVerified && $botInfo)
         <!-- Bot Info Card -->
         <div class="bg-green-50 border border-green-200 rounded-xl p-6 mb-6">
+            <div class="mb-4 pb-4 border-b border-green-200">
+                <h3 class="font-semibold text-green-900 text-sm">✓ Bot Verified & Saved</h3>
+                <p class="text-xs text-green-700 mt-1">Bot record created in database</p>
+            </div>
+
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                 <div>
                     <p class="text-xs text-gray-600 font-medium mb-1">Bot ID</p>

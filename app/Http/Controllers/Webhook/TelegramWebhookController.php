@@ -158,10 +158,9 @@ class TelegramWebhookController
     {
         $from = $message['from'];
 
-        return TgUser::updateOrCreate(
+        return TgUser::firstOrCreate(
             ['chat_id' => $from['id']],
             [
-                'uuid' => Str::uuid(),
                 'first_name' => $from['first_name'] ?? null,
                 'last_name' => $from['last_name'] ?? null,
                 'username' => $from['username'] ?? null,

@@ -46,6 +46,14 @@
                 </div>
             </div>
 
+            <!-- Bot UUID Display -->
+            @if($botUuid)
+                <div class="mb-4">
+                    <p class="text-xs text-gray-600 font-medium mb-1.5">Bot UUID (Database ID)</p>
+                    <p class="text-xs font-mono text-green-900 bg-green-100 p-2 rounded-lg break-all">{{ $botUuid }}</p>
+                </div>
+            @endif
+
             <!-- Action Buttons -->
             <div class="flex gap-2 flex-wrap">
                 <button

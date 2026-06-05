@@ -2,14 +2,11 @@
 
 @section('content')
 <div class="p-6">
-    <div class="mb-6 flex items-center justify-between">
+    <div class="mb-6">
         <div>
             <h1 class="text-xl font-semibold">Dashboard</h1>
             <p class="text-sm text-gray-500 mt-0.5">Welcome back, {{ auth()->user()->name }}!</p>
         </div>
-        @if(!auth()->user()->bot)
-            <livewire:create-bot-modal />
-        @endif
     </div>
 
     @if(session('success'))
@@ -78,17 +75,6 @@
                         </div>
                     </div>
             </div>
-        </div>
-    @else
-        <div class="bg-white rounded-xl border-2 border-dashed border-gray-200 p-8 text-center">
-            <div class="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center mx-auto mb-3">
-                <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                </svg>
-            </div>
-            <h3 class="text-sm font-semibold text-gray-900 mb-1">No bots yet</h3>
-            <p class="text-xs text-gray-500 mb-4">Create your first Telegram bot to get started</p>
-            <livewire:create-bot-modal />
         </div>
     @endif
 </div>

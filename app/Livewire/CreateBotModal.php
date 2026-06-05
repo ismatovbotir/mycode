@@ -9,6 +9,7 @@ use Livewire\Component;
 class CreateBotModal extends Component
 {
     public string $tg_bot_token = '';
+    public string $botUuid = '';
     public bool $tokenVerified = false;
     public ?array $botInfo = null;
     public string $verificationError = '';
@@ -38,6 +39,12 @@ class CreateBotModal extends Component
                 $this->verificationError = '';
                 $this->webhookInfo = null;
                 $this->webhookMessage = '';
+
+                // Fetch bot UUID from database by tg_bot_id
+                $bot = Bot::where('tg_bot_id', $result['result']['id'])->first();
+                if ($bot) {
+                    $this->botUuid = $bot->id;
+                }
             } else {
                 $this->tokenVerified = false;
                 $this->verificationError = $result['message'] ?? 'Failed to verify token';
@@ -89,9 +96,13 @@ class CreateBotModal extends Component
             return;
         }
 
+        $this->validate([
+            'botUuid' => 'required|string|uuid',
+        ]);
+
         try {
             $telegramService = new TelegramService();
-            $webhookUrl = 'https://mycode.uz/api/webhook/tg/{bot_uuid}';
+            $webhookUrl = 'https://mycode.uz/api/webhook/tg/' . $this->botUuid;
             $result = $telegramService->setWebhook($this->tg_bot_token, $webhookUrl);
 
             $this->lastAction = 'SET_WEBHOOK';
@@ -100,7 +111,6 @@ class CreateBotModal extends Component
             if ($result['success']) {
                 $this->webhookMessage = 'Webhook set successfully';
                 $this->webhookMessageType = 'success';
-                $this->getWebhookInfo();
             } else {
                 $this->webhookMessage = $result['message'] ?? 'Failed to set webhook';
                 $this->webhookMessageType = 'error';

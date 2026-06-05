@@ -11,13 +11,35 @@ class TelegramService
 {
     private string $apiUrl = 'https://api.telegram.org/bot';
 
-    public function setWebhook(string $token, string $url): bool
+    public function setWebhook(string $token, string $url): array
     {
-        $response = Http::get("{$this->apiUrl}{$token}/setWebhook", [
-            'url' => $url,
-        ]);
+        try {
+            $response = Http::post("{$this->apiUrl}{$token}/setWebhook", [
+                'url' => $url,
+            ]);
 
-        return $response->ok() && $response->json('ok') === true;
+            $data = $response->json();
+
+            if ($response->ok() && ($data['ok'] ?? false) === true) {
+                return [
+                    'success' => true,
+                    'message' => 'Webhook set successfully',
+                    'response' => $data,
+                ];
+            }
+
+            return [
+                'success' => false,
+                'message' => $data['description'] ?? 'Failed to set webhook',
+                'response' => $data,
+            ];
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'message' => 'Connection error: ' . $e->getMessage(),
+                'response' => null,
+            ];
+        }
     }
 
     public function sendMessage(string $token, int $chatId, string $text, ?array $replyMarkup = null): array

@@ -24,6 +24,12 @@ class BotController extends Controller
         return view('bots.show', compact('bot'));
     }
 
+    public function edit(Bot $bot): View
+    {
+        $this->authorize('update', $bot);
+        return view('bots.edit', compact('bot'));
+    }
+
     public function update(Request $request, Bot $bot)
     {
         $this->authorize('update', $bot);

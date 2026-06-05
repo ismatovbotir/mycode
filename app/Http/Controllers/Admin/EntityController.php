@@ -15,4 +15,30 @@ class EntityController
         $entities = Entity::orderBy('type')->get();
         return view('admin.entities.index', compact('entities'));
     }
+
+    public function show(Entity $entity): View
+    {
+        return view('admin.entities.show', compact('entity'));
+    }
+
+    public function edit(Entity $entity): View
+    {
+        return view('admin.entities.edit', compact('entity'));
+    }
+
+    public function update(Entity $entity)
+    {
+        $validated = request()->validate([
+            'is_active' => 'boolean',
+            'is_document' => 'boolean',
+            'document_format' => 'nullable|array',
+            'translations' => 'array',
+            'messages' => 'array',
+        ]);
+
+        $entity->update($validated);
+
+        return redirect()->route('admin.entities.show', $entity)
+            ->with('success', 'Entity updated successfully!');
+    }
 }

@@ -22,6 +22,12 @@ class Entities extends Component
     public ?array $retryPayload = null;
     public ?array $retryResponse = null;
 
+    public bool $showDeleteModal = false;
+    public ?string $deletingUserEntityId = null;
+    public ?string $deleteCommand = null;
+    public ?string $deleteWebhookId = null;
+    public ?array $deleteResponse = null;
+
     public function getAllEntitiesProperty()
     {
         return Entity::where('is_active', true)
@@ -89,6 +95,72 @@ class Entities extends Component
         $this->retryUrl = null;
         $this->retryPayload = null;
         $this->retryResponse = null;
+    }
+
+    public function openDeleteModal(string $userEntityId): void
+    {
+        /** @var \App\Models\UserEntity $userEntity */
+        $userEntity = \App\Models\UserEntity::findOrFail($userEntityId);
+
+        $this->deletingUserEntityId = $userEntityId;
+        $this->deleteCommand = $userEntity->action;
+        $this->deleteWebhookId = $userEntity->ms_id;
+        $this->showDeleteModal = true;
+
+        $this->dispatch('executeDelete', userEntityId: $userEntityId);
+    }
+
+    public function closeDeleteModal(): void
+    {
+        $this->showDeleteModal = false;
+        $this->deletingUserEntityId = null;
+        $this->deleteCommand = null;
+        $this->deleteWebhookId = null;
+        $this->deleteResponse = null;
+    }
+
+    public function executeDelete(string $userEntityId): void
+    {
+        /** @var \App\Models\UserEntity $userEntity */
+        $userEntity = \App\Models\UserEntity::findOrFail($userEntityId);
+        $user = Auth::user();
+
+        if (!$user || !$user->moysklad_token) {
+            session()->flash('error', 'МойСклад token not configured.');
+            $this->closeDeleteModal();
+            return;
+        }
+
+        try {
+            /** @var string $token */
+            $token = $user->moysklad_token;
+            $moySkladService = new \App\Services\MoySkladService($token);
+
+            $result = $moySkladService->deleteWebhook($userEntity->ms_id);
+
+            $this->deleteResponse = [
+                'success' => $result['success'] ?? false,
+                'data' => $result,
+            ];
+
+            if (!($result['success'] ?? false)) {
+                session()->flash('error', "Failed to delete {$userEntity->action} webhook");
+                return;
+            }
+
+            $userEntity->update([
+                'ms_id' => null,
+                'messages' => json_encode(['deleted_at' => now()->toDateTimeString()]),
+            ]);
+
+            session()->flash('success', "{$userEntity->action} webhook deleted successfully!");
+        } catch (\Exception $e) {
+            $this->deleteResponse = [
+                'success' => false,
+                'data' => ['error' => $e->getMessage()],
+            ];
+            session()->flash('error', "Delete failed: " . $e->getMessage());
+        }
     }
 
     public function executeRetry(string $userEntityId): void
@@ -246,11 +318,19 @@ class Entities extends Component
             return;
         }
 
+        $user = Auth::user();
+
         $this->validate([
-            'bearer_token' => 'required|string|min:10',
+            'bearer_token' => [
+                'required',
+                'string',
+                'min:10',
+                'unique:users,moysklad_token,' . $user->id . ',id',
+            ],
+        ], [
+            'bearer_token.unique' => 'This token is already in use by another user.',
         ]);
 
-        $user = Auth::user();
         $user->update([
             'moysklad_token' => $this->bearer_token,
         ]);

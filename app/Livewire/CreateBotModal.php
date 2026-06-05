@@ -35,8 +35,32 @@ class CreateBotModal extends Component
     {
         $this->showWebhookModal = false;
         $this->createdBot = null;
-        session()->flash('success', 'Bot created successfully! Webhook is set and ready.');
+        session()->flash('success', 'Bot created successfully!');
         return $this->redirect(route('bots.index'), navigate: true);
+    }
+
+    public function retryWebhook(): void
+    {
+        if (!$this->createdBot) {
+            return;
+        }
+
+        try {
+            $telegramService = new TelegramService();
+            $webhookUrl = route('telegram.webhook', ['bot' => $this->createdBot->id], absolute: true);
+            $result = $telegramService->setWebhook(decrypt($this->createdBot->tg_bot_token), $webhookUrl);
+
+            if ($result['success']) {
+                $this->createdBot->update(['webhook_status' => 'success']);
+            } else {
+                $this->createdBot->update(['webhook_status' => 'failed']);
+            }
+
+            $this->createdBot->refresh();
+        } catch (\Exception $e) {
+            $this->createdBot->update(['webhook_status' => 'failed']);
+            $this->createdBot->refresh();
+        }
     }
 
     public function switchLang($lang)
@@ -82,10 +106,19 @@ class CreateBotModal extends Component
         try {
             $telegramService = new TelegramService();
             $webhookUrl = route('telegram.webhook', ['bot' => $bot->id], true);
-            $telegramService->setWebhook(decrypt($bot->tg_bot_token), $webhookUrl);
-            $bot->update(['webhook_status' => 'success']);
+            $result = $telegramService->setWebhook(decrypt($bot->tg_bot_token), $webhookUrl);
+
+            if ($result['success']) {
+                $bot->update(['webhook_status' => 'success']);
+            } else {
+                \Log::warning('Failed to set webhook', [
+                    'bot_id' => $bot->id,
+                    'message' => $result['message'],
+                ]);
+                $bot->update(['webhook_status' => 'failed']);
+            }
         } catch (\Exception $e) {
-            \Log::error('Failed to set webhook', ['bot_id' => $bot->id, 'error' => $e->getMessage()]);
+            \Log::error('Exception setting webhook', ['bot_id' => $bot->id, 'error' => $e->getMessage()]);
             $bot->update(['webhook_status' => 'failed']);
         }
 

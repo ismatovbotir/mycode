@@ -6,7 +6,6 @@ use App\Models\Bot;
 use App\Models\BotClient;
 use App\Models\TgUser;
 use App\Services\BotSessionService;
-use App\Services\MoySkladService;
 use App\Services\TelegramService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -122,47 +121,21 @@ class TelegramWebhookController
 
         TgUser::where('chat_id', $chatId)->update(['phone' => $phone]);
 
-        $integration = $bot->company->integrations()->where('type', 'moisklad')->first();
-
-        $matched = false;
-        $mySkladId = null;
-
-        if ($integration && $integration->is_active) {
-            $token = $integration->credentials['token'] ?? '';
-            $moySkladService = new MoySkladService($token);
-            $customer = $moySkladService->findByPhone($phone);
-
-            if ($customer) {
-                $matched = true;
-                $mySkladId = $customer['id'] ?? null;
-            }
-        }
-
         $approved = !$bot->requires_admin_approval;
         BotClient::updateOrCreate(
             ['bot_id' => $bot->id, 'tg_user_id' => $tgUser->id],
             [
-                'uuid' => Str::uuid(),
-                'mySklad_id' => $mySkladId,
-                'matched' => $matched,
-                'matched_at' => $matched ? now() : null,
                 'approved' => $approved,
                 'approved_at' => $approved ? now() : null,
             ]
         );
 
         $lang = $session['lang'];
-        $messages = $matched
-            ? [
-                'uz' => 'Rahmat! Siz tizimga ulandi.',
-                'en' => 'Thank you! You are connected to the system.',
-                'ru' => 'Спасибо! Вы подключены к системе.',
-            ]
-            : [
-                'uz' => 'Rahmat! Siz kutiш ro\'yxatida mavjudsiz.',
-                'en' => 'Thank you! You are on the waiting list.',
-                'ru' => 'Спасибо! Вы в списке ожидания.',
-            ];
+        $messages = [
+            'uz' => 'Rahmat! Siz ro\'yxatga olindingiz.',
+            'en' => 'Thank you! You are registered.',
+            'ru' => 'Спасибо! Вы зарегистрированы.',
+        ];
 
         $this->telegramService->sendMessage($token, $chatId, $messages[$lang] ?? $messages['ru']);
 

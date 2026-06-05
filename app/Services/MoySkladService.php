@@ -204,6 +204,39 @@ class MoySkladService
         }
     }
 
+    public function deleteWebhook(string $webhookId): ?array
+    {
+        $url = "https://api.moysklad.ru/api/remap/1.2/entity/webhook/{$webhookId}";
+
+        try {
+            $response = Http::withHeaders([
+                'Authorization' => "Bearer {$this->token}",
+                'Content-Type' => 'application/json',
+                'Accept-Encoding' => 'gzip',
+            ])->timeout(20)->delete($url);
+
+            Log::info('МойСклад webhook deleted', [
+                'webhook_id' => $webhookId,
+                'status' => $response->status(),
+            ]);
+
+            return [
+                'success' => $response->status() === 204 || $response->status() === 200,
+                'status' => $response->status(),
+                'message' => $response->status() === 204 ? 'Webhook deleted successfully' : $response->body(),
+            ];
+        } catch (\Exception $e) {
+            Log::error('МойСклад webhook deletion failed', [
+                'webhook_id' => $webhookId,
+                'error' => $e->getMessage(),
+            ]);
+            return [
+                'success' => false,
+                'error' => $e->getMessage(),
+            ];
+        }
+    }
+
     private function normalizePhone(string $phone): string
     {
         return preg_replace('/\D/', '', $phone);

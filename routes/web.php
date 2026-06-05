@@ -47,6 +47,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/bots', [BotController::class, 'index'])->name('bots.index');
     Route::get('/bots/{bot}', [BotController::class, 'show'])->name('bots.show');
+    Route::get('/bots/{bot}/edit', [BotController::class, 'edit'])->name('bots.edit');
     Route::put('/bots/{bot}', [BotController::class, 'update'])->name('bots.update');
     Route::patch('/bots/{bot}/toggle-active', [BotController::class, 'toggleActive'])->name('bots.toggleActive');
     Route::get('/bots/{bot}/clients', [BotController::class, 'clients'])->name('bots.clients');
@@ -83,7 +84,7 @@ Route::middleware(['auth', 'super.admin'])->prefix('admin')->name('admin.')->gro
     Route::resource('integration-fields', \App\Http\Controllers\Admin\IntegrationFieldController::class);
 
     // Entities Management
-    Route::get('/entities', [\App\Http\Controllers\Admin\EntityController::class, 'index'])->name('entities.index');
+    Route::resource('entities', \App\Http\Controllers\Admin\EntityController::class);
 
     // МойСклад Webhooks Management
     Route::get('/moysklad-webhooks', fn() => view('admin.moysklad-webhooks'))->name('moysklad-webhooks.index');

@@ -1,28 +1,44 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Attributes\Fillable;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['bot_id', 'event_type', 'payload', 'status', 'bot_client_id'])]
 class WebhookEvent extends Model
 {
-    use HasFactory;
+    protected $fillable = [
+        'bot_id',
+        'user_entity_id',
+        'event_type',
+        'payload',
+        'status',
+        'matched',
+        'bot_client_id',
+        'tg_status',
+        'sent_at',
+    ];
 
     protected $casts = [
         'payload' => 'array',
+        'matched' => 'boolean',
+        'sent_at' => 'datetime',
     ];
 
     public function bot(): BelongsTo
     {
-        return $this->belongsTo(Bot::class);
+        return $this->belongsTo(Bot::class, 'bot_id', 'id');
     }
 
-    public function client(): BelongsTo
+    public function userEntity(): BelongsTo
     {
-        return $this->belongsTo(BotClient::class, 'bot_client_id');
+        return $this->belongsTo(UserEntity::class, 'user_entity_id', 'id');
+    }
+
+    public function botClient(): BelongsTo
+    {
+        return $this->belongsTo(BotClient::class, 'bot_client_id', 'id');
     }
 }

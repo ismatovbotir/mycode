@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable(['user_id', 'entity_id', 'action', 'ms_id', 'messages'])]
 class UserEntity extends Model
@@ -29,5 +30,10 @@ class UserEntity extends Model
     public function entity(): BelongsTo
     {
         return $this->belongsTo(Entity::class);
+    }
+
+    public function webhookEvents(): HasMany
+    {
+        return $this->hasMany(WebhookEvent::class, 'user_entity_id', 'id');
     }
 }

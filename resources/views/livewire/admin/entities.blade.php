@@ -143,6 +143,12 @@
                                                     class="px-2 py-1 bg-blue-500 text-white rounded text-xs font-semibold hover:bg-blue-600 whitespace-nowrap">
                                                     🔄 Retry
                                                 </button>
+                                            @elseif($actionRecord && !empty($actionRecord->ms_id))
+                                                <button
+                                                    wire:click="openDeleteModal('{{ $actionRecord->id }}')"
+                                                    class="px-2 py-1 bg-red-500 text-white rounded text-xs font-semibold hover:bg-red-600 whitespace-nowrap">
+                                                    🗑️ Delete
+                                                </button>
                                             @endif
                                         </div>
 
@@ -261,6 +267,56 @@
                             </svg>
                         </div>
                         <p class="text-sm text-gray-600 font-semibold">Creating webhook...</p>
+                        <p class="text-xs text-gray-500 mt-2">Auto-closing in <span x-text="countdown">10</span>s</p>
+                    </div>
+                @endif
+            </div>
+        </div>
+    @endif
+
+    <!-- Delete Modal -->
+    @if($showDeleteModal && $deletingUserEntityId)
+        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" x-data="{ countdown: 10 }" x-init="setInterval(() => { countdown--; if(countdown <= 0) { $wire.closeDeleteModal() } }, 1000)">
+            <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
+                <!-- Header -->
+                <div class="text-center mb-6">
+                    <h3 class="text-xl font-bold text-gray-900">🗑️ Deleting Webhook</h3>
+                    <p class="text-sm text-gray-600 mt-1">{{ $deleteCommand }} Action</p>
+                </div>
+
+                <!-- Webhook ID -->
+                <div class="mb-4">
+                    <label class="block text-xs font-semibold text-gray-700 mb-1">Webhook ID</label>
+                    <div class="bg-gray-100 rounded p-3 text-xs text-gray-700 break-all font-mono">
+                        {{ $deleteWebhookId }}
+                    </div>
+                </div>
+
+                <!-- Response or Loading -->
+                @if($deleteResponse)
+                    <div class="mb-4">
+                        <label class="block text-xs font-semibold text-gray-700 mb-2">МойСклад Response</label>
+                        <div class="@if($deleteResponse['success']) bg-green-50 border border-green-200 @else bg-red-50 border border-red-200 @endif rounded p-3 text-xs">
+                            @if($deleteResponse['success'])
+                                <p class="text-green-800 font-semibold mb-2">✓ Webhook Deleted Successfully!</p>
+                            @else
+                                <p class="text-red-800 font-semibold mb-2">✗ Error Deleting Webhook</p>
+                            @endif
+                            <div class="bg-gray-900 text-gray-100 rounded p-2 font-mono text-xs overflow-x-auto">
+                                <pre>{{ json_encode($deleteResponse['data'], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}</pre>
+                            </div>
+                        </div>
+                    </div>
+                @else
+                    <!-- Loading Animation -->
+                    <div class="text-center">
+                        <div class="flex justify-center mb-4">
+                            <svg class="animate-spin h-10 w-10 text-red-600" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        </div>
+                        <p class="text-sm text-gray-600 font-semibold">Deleting webhook...</p>
                         <p class="text-xs text-gray-500 mt-2">Auto-closing in <span x-text="countdown">10</span>s</p>
                     </div>
                 @endif

@@ -15,6 +15,8 @@ return new class extends Migration
         Schema::create('entities', function (Blueprint $table) {
             $table->id();
             $table->boolean('is_active')->default(false);
+            $table->boolean('is_document')->default(false);
+            $table->json('document_format')->nullable();
             $table->string('type')->unique();
             $table->json('translations')->default(json_encode(['uz' => '', 'en' => '', 'ru' => '']));
             $table->json('messages')->default(json_encode(['uz' => '', 'en' => '',  'ru' => '']));

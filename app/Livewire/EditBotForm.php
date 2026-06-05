@@ -1,8 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire;
 
 use App\Models\Bot;
+use App\Services\TelegramService;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
@@ -65,6 +68,30 @@ class EditBotForm extends Component
 
         session()->flash('success', 'Bot updated successfully!');
         return redirect()->route('bots.show', $this->bot);
+    }
+
+    public function retryWebhook(): void
+    {
+        abort_if(!Auth::user()->can('update', $this->bot), 403);
+
+        try {
+            $telegramService = new TelegramService();
+            $webhookUrl = route('telegram.webhook', ['bot' => $this->bot->id], absolute: true);
+            $result = $telegramService->setWebhook(decrypt($this->bot->tg_bot_token), $webhookUrl);
+
+            if ($result['success']) {
+                $this->bot->update(['webhook_status' => 'success']);
+                session()->flash('success', 'Telegram webhook set successfully!');
+            } else {
+                $this->bot->update(['webhook_status' => 'failed']);
+                session()->flash('error', 'Failed to set webhook: ' . ($result['message'] ?? 'Unknown error'));
+            }
+        } catch (\Exception $e) {
+            $this->bot->update(['webhook_status' => 'failed']);
+            session()->flash('error', 'Error setting webhook: ' . $e->getMessage());
+        }
+
+        $this->redirect(route('bots.show', $this->bot));
     }
 
     public function render()

@@ -8,7 +8,12 @@
             <h1 class="text-2xl font-semibold">{{ $bot->name }}</h1>
             <p class="text-sm text-gray-500 mt-1">Manage bot configuration and settings</p>
         </div>
-        <livewire:toggle-bot-active :bot="$bot" :key="'toggle-'.$bot->id" />
+        <div class="flex gap-2">
+            <a href="{{ route('bots.edit', $bot) }}" class="px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-colors font-medium text-sm">
+                ✏️ Edit Settings
+            </a>
+            <livewire:toggle-bot-active :bot="$bot" :key="'toggle-'.$bot->id" />
+        </div>
     </div>
 
     @if(session('success'))
@@ -45,10 +50,6 @@
         </div>
     </div>
 
-    <!-- Settings -->
-    <div class="bg-white rounded-xl border border-gray-200 p-6">
-        <livewire:edit-bot-form :bot="$bot" :key="'edit-'.$bot->id" />
-    </div>
 </div>
 
 <script>

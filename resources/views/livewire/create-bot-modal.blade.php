@@ -192,18 +192,53 @@
 
                 <!-- Content -->
                 <div class="px-6 py-5 space-y-5">
-                    <!-- Success Alert -->
-                    <div class="bg-green-50 border border-green-200 rounded-lg p-4">
-                        <div class="flex gap-3">
-                            <svg class="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                            </svg>
-                            <div>
-                                <h3 class="font-semibold text-green-900 text-sm">Webhook Setup Complete</h3>
-                                <p class="text-xs text-green-700 mt-1">Your bot is now receiving messages from Telegram. No additional configuration needed on Telegram's side.</p>
+                    <!-- Webhook Status Alert -->
+                    @if($createdBot->webhook_status === 'success')
+                        <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                            <div class="flex gap-3">
+                                <svg class="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                                <div>
+                                    <h3 class="font-semibold text-green-900 text-sm">✅ Webhook Setup Complete</h3>
+                                    <p class="text-xs text-green-700 mt-1">Your bot is now receiving messages from Telegram. No additional configuration needed on Telegram's side.</p>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    @elseif($createdBot->webhook_status === 'failed')
+                        <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                            <div class="flex gap-3">
+                                <svg class="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                </svg>
+                                <div>
+                                    <h3 class="font-semibold text-red-900 text-sm">⚠️ Webhook Setup Failed</h3>
+                                    <p class="text-xs text-red-700 mt-1">Unable to connect your bot to Telegram. This might be a temporary issue. Please try again.</p>
+                                    <button
+                                        type="button"
+                                        wire:click="retryWebhook"
+                                        wire:loading.attr="disabled"
+                                        class="text-xs bg-red-600 text-white font-medium px-3 py-1.5 rounded mt-2 hover:bg-red-700 transition-colors disabled:opacity-50">
+                                        <span wire:loading.remove>🔄 Retry Webhook</span>
+                                        <span wire:loading>
+                                            <svg class="animate-spin inline w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                            Retrying...
+                                        </span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    @else
+                        <div class="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                            <div class="flex gap-3">
+                                <svg class="animate-spin w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                <div>
+                                    <h3 class="font-semibold text-amber-900 text-sm">⏳ Setting up webhook...</h3>
+                                    <p class="text-xs text-amber-700 mt-1">Configuring your bot with Telegram</p>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
 
                     <!-- Webhook URL -->
                     <div>

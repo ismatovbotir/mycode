@@ -87,6 +87,47 @@
         @endforeach
     </div>
 
+    <!-- Webhook Status -->
+    <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+        <div class="flex items-center justify-between">
+            <div>
+                <label class="block text-xs font-medium text-gray-600 mb-1">Telegram Webhook Status</label>
+                <div class="flex items-center gap-2">
+                    @if($bot->webhook_status === 'success')
+                        <span class="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded">
+                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                            Connected
+                        </span>
+                    @elseif($bot->webhook_status === 'failed')
+                        <span class="inline-flex items-center gap-1 px-2 py-1 bg-red-100 text-red-700 text-xs font-medium rounded">
+                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
+                            Failed
+                        </span>
+                    @else
+                        <span class="inline-flex items-center gap-1 px-2 py-1 bg-amber-100 text-amber-700 text-xs font-medium rounded">
+                            <svg class="animate-spin w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                            Pending
+                        </span>
+                    @endif
+                </div>
+            </div>
+            @if($bot->webhook_status === 'failed')
+                <button
+                    type="button"
+                    wire:click="retryWebhook"
+                    wire:loading.attr="disabled"
+                    class="text-xs bg-brand-600 text-white font-medium px-3 py-2 rounded-lg hover:bg-brand-700 transition-colors disabled:opacity-50">
+                    <span wire:loading.remove>🔄 Retry</span>
+                    <span wire:loading>
+                        <svg class="animate-spin inline w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        Retrying...
+                    </span>
+                    </button>
+            @endif
+        </div>
+        <p class="text-xs text-gray-500 mt-2">The webhook connects your bot to Telegram for receiving messages</p>
+    </div>
+
     <div class="flex gap-2 pt-4 border-t border-gray-100">
         <button type="submit" class="px-4 py-2 bg-brand-600 text-white text-sm font-medium rounded-lg hover:bg-brand-700 transition-colors">
             Save Changes

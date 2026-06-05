@@ -45,6 +45,8 @@
                 </div>
             </div>
         </div>
+    @else
+        <livewire:create-bot-modal />
     @endif
 </div>
 @endsection

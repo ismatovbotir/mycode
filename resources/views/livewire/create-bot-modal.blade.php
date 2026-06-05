@@ -65,25 +65,31 @@
                     type="button"
                     wire:click="setWebhook"
                     wire:loading.attr="disabled"
-                    class="bg-blue-600 text-white font-medium text-sm px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50">
-                    <span wire:loading.remove>🔗 Set Webhook</span>
-                    <span wire:loading><svg class="animate-spin inline w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg></span>
+                    wire:loading.target="setWebhook"
+                    class="bg-blue-600 text-white font-medium text-sm px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 h-9 flex items-center gap-2">
+                    <span wire:loading.remove wire:target="setWebhook">🔗</span>
+                    <span wire:loading wire:target="setWebhook"><svg class="animate-spin w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg></span>
+                    <span>Set Webhook</span>
                 </button>
                 <button
                     type="button"
                     wire:click="getWebhookInfo"
                     wire:loading.attr="disabled"
-                    class="bg-green-600 text-white font-medium text-sm px-4 py-2 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50">
-                    <span wire:loading.remove>ℹ️ Get Info</span>
-                    <span wire:loading><svg class="animate-spin inline w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg></span>
+                    wire:loading.target="getWebhookInfo"
+                    class="bg-green-600 text-white font-medium text-sm px-4 py-2 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 h-9 flex items-center gap-2">
+                    <span wire:loading.remove wire:target="getWebhookInfo">ℹ️</span>
+                    <span wire:loading wire:target="getWebhookInfo"><svg class="animate-spin w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg></span>
+                    <span>Get Info</span>
                 </button>
                 <button
                     type="button"
                     wire:click="deleteWebhook"
                     wire:loading.attr="disabled"
-                    class="bg-red-600 text-white font-medium text-sm px-4 py-2 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50">
-                    <span wire:loading.remove>🗑️ Delete</span>
-                    <span wire:loading><svg class="animate-spin inline w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg></span>
+                    wire:loading.target="deleteWebhook"
+                    class="bg-red-600 text-white font-medium text-sm px-4 py-2 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 h-9 flex items-center gap-2">
+                    <span wire:loading.remove wire:target="deleteWebhook">🗑️</span>
+                    <span wire:loading wire:target="deleteWebhook"><svg class="animate-spin w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg></span>
+                    <span>Delete</span>
                 </button>
             </div>
         </div>

@@ -19,6 +19,18 @@ class TelegramWebhookController
         private BotSessionService $sessionService,
     ) {}
 
+    public function healthCheck(Bot $bot): JsonResponse
+    {
+        return response()->json([
+            'ok' => true,
+            'bot_id' => $bot->id,
+            'bot_name' => $bot->name,
+            'webhook_status' => $bot->webhook_status,
+            'tg_bot_id' => $bot->tg_bot_id,
+            'tg_username' => $bot->tg_username,
+        ]);
+    }
+
     public function handle(Request $request, Bot $bot): JsonResponse
     {
         $update = $request->json()->all();

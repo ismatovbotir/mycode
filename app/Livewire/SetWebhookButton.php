@@ -20,11 +20,11 @@ class SetWebhookButton extends Component
             $telegramService = new TelegramService();
             $webhookUrl = route('telegram.webhook', ['bot' => $this->bot->id], true);
             $telegramService->setWebhook(decrypt($this->bot->tg_bot_token), $webhookUrl);
-            $this->bot->update(['webhook_status' => 'success']);
+            $this->bot->update(['webhook_status' => true]);
             session()->flash('success', 'Webhook set successfully!');
         } catch (\Exception $e) {
             \Log::error('Failed to set webhook', ['bot_id' => $this->bot->id, 'error' => $e->getMessage()]);
-            $this->bot->update(['webhook_status' => 'failed']);
+            $this->bot->update(['webhook_status' => false]);
             session()->flash('error', 'Failed to set webhook: ' . $e->getMessage());
         } finally {
             $this->loading = false;

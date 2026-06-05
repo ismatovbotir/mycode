@@ -16,8 +16,11 @@ return new class extends Migration {
             $table->foreignUuid('user_id')->constrained('users')->onDelete('cascade');
             $table->string('name');
             $table->text('tg_bot_token');
-            $table->enum('webhook_status', ['pending', 'success', 'failed'])->default('pending');
-            $table->uuid('webhook_secret');
+            $table->bigInteger('tg_bot_id')->nullable()->unique();
+            $table->string('tg_first_name')->nullable();
+            $table->string('tg_username')->nullable()->unique();
+            $table->json('tg_bot_metadata')->nullable();
+            $table->boolean('webhook_status')->default(false);
             $table->json('content')->nullable();
             $table->boolean('is_active')->default(true);
             $table->boolean('requires_admin_approval')->default(false);

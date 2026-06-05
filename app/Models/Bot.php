@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['user_id', 'name', 'tg_bot_token', 'webhook_secret', 'webhook_status', 'content', 'is_active', 'requires_admin_approval'])]
+#[Fillable(['user_id', 'name', 'tg_bot_token', 'tg_bot_id', 'tg_first_name', 'tg_username', 'tg_bot_metadata', 'webhook_status', 'content', 'is_active', 'requires_admin_approval'])]
 class Bot extends Model
 {
     use HasFactory, HasUuids;
@@ -21,6 +21,7 @@ class Bot extends Model
 
     protected $casts = [
         'content' => 'array',
+        'tg_bot_metadata' => 'array',
         'is_active' => 'boolean',
         'requires_admin_approval' => 'boolean',
         'tg_bot_token' => 'encrypted',

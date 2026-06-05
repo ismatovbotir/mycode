@@ -23,7 +23,7 @@
     @endif
 
     <!-- Webhook Info Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+    <div class="grid grid-cols-1 gap-4 mb-6">
         <div class="bg-white rounded-xl border border-gray-200 p-5">
             <p class="text-xs font-medium text-gray-600 mb-2">Webhook URL</p>
             <div class="flex items-center gap-2">
@@ -34,19 +34,6 @@
                     Copy
                 </button>
             </div>
-        </div>
-
-        <div class="bg-white rounded-xl border border-gray-200 p-5">
-            <p class="text-xs font-medium text-gray-600 mb-2">Webhook Secret</p>
-            <div class="flex items-center gap-2">
-                <code class="flex-1 text-xs bg-gray-50 p-3 rounded-lg text-gray-800 break-all font-mono">
-                    {{ $bot->webhook_secret }}
-                </code>
-                <button onclick="copyToClipboard('{{ $bot->webhook_secret }}')" class="px-3 py-2 bg-brand-50 text-brand-600 rounded-lg hover:bg-brand-100 text-xs font-medium transition-colors flex-shrink-0">
-                    Copy
-                </button>
-            </div>
-            <p class="text-xs text-gray-400 mt-2">Use this as X-Webhook-Secret header</p>
         </div>
     </div>
 

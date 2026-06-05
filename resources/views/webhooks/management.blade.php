@@ -36,22 +36,6 @@
                         </div>
                     </div>
 
-                    <div>
-                        <p class="text-xs font-medium text-gray-600 mb-2">2. Webhook Secret</p>
-                        <div class="flex gap-2">
-                            <code class="flex-1 text-xs bg-gray-50 p-2 rounded border border-gray-200 break-all text-gray-800 font-mono">
-                                {{ $bot->webhook_secret }}
-                            </code>
-                            <button
-                                onclick="copyToClipboard('{{ $bot->webhook_secret }}')"
-                                class="px-2 py-1 bg-brand-600 text-white rounded text-xs font-medium hover:bg-brand-700 transition-colors flex-shrink-0"
-                            >
-                                Copy
-                            </button>
-                        </div>
-                        <p class="text-xs text-gray-500 mt-1">Header: <code>X-Webhook-Secret</code></p>
-                    </div>
-
                     @if($integration)
                         <div class="pt-4 border-t border-gray-200">
                             <p class="text-xs font-medium text-green-700 mb-2">✓ Integration Connected</p>
@@ -106,14 +90,6 @@
                         <li class="flex gap-3">
                             <span class="flex-shrink-0 w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-medium text-xs">4</span>
                             <div>
-                                <p class="font-medium text-gray-900">Add HTTP Header</p>
-                                <p class="text-xs text-gray-600 mb-1">Name: <code class="bg-gray-50 px-1 rounded">X-Webhook-Secret</code></p>
-                                <p class="text-xs text-gray-600">Value: Copy from "Webhook Secret" above</p>
-                            </div>
-                        </li>
-                        <li class="flex gap-3">
-                            <span class="flex-shrink-0 w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-medium text-xs">5</span>
-                            <div>
                                 <p class="font-medium text-gray-900">Select Events</p>
                                 <p class="text-xs text-gray-600 mb-2">Enable these event types:</p>
                                 <ul class="text-xs text-gray-600 space-y-1 ml-3">
@@ -128,7 +104,7 @@
                             </div>
                         </li>
                         <li class="flex gap-3">
-                            <span class="flex-shrink-0 w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-medium text-xs">6</span>
+                            <span class="flex-shrink-0 w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-medium text-xs">5</span>
                             <div>
                                 <p class="font-medium text-gray-900">Save & Test</p>
                                 <p class="text-xs text-gray-600">Click Save, then Test to verify the webhook works</p>

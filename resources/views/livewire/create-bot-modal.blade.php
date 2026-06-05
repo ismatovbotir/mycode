@@ -36,16 +36,127 @@
                     <!-- Telegram Token -->
                     <div>
                         <label class="block text-xs font-medium text-gray-600 mb-1.5">Telegram Token <span class="text-gray-400 font-normal">(@BotFather)</span></label>
-                        <input
-                            type="text"
-                            wire:model="tg_bot_token"
-                            placeholder="123456789:AAF..."
-                            required
-                            class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500 font-mono"/>
+                        <div class="flex gap-2">
+                            <input
+                                type="text"
+                                wire:model="tg_bot_token"
+                                placeholder="123456789:AAF..."
+                                required
+                                {{ $tokenVerified ? 'disabled' : '' }}
+                                class="flex-1 text-sm border border-gray-200 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500 font-mono {{ $tokenVerified ? 'bg-gray-50' : '' }}"/>
+                            <button
+                                type="button"
+                                wire:click="verifyToken"
+                                wire:loading.attr="disabled"
+                                {{ $tokenVerified ? 'disabled' : '' }}
+                                class="text-sm bg-brand-600 text-white font-medium px-4 py-2 rounded-lg hover:bg-brand-700 transition-colors disabled:opacity-50 whitespace-nowrap">
+                                <span wire:loading.remove>
+                                    @if($tokenVerified)
+                                        ✓ Verified
+                                    @else
+                                        Verify
+                                    @endif
+                                </span>
+                                <span wire:loading>
+                                    <svg class="animate-spin inline w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                </span>
+                            </button>
+                        </div>
+                        @if($verificationError)
+                            <span class="text-xs text-red-600 mt-1 block">{{ $verificationError }}</span>
+                        @endif
                         @error('tg_bot_token')
                             <span class="text-xs text-red-600 mt-1">{{ $message }}</span>
                         @enderror
                     </div>
+
+                    <!-- Bot Info (after verification) -->
+                    @if($tokenVerified && $botInfo)
+                        <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                            <div class="flex gap-3">
+                                <svg class="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                                <div class="flex-1">
+                                    <h4 class="font-semibold text-green-900 text-sm mb-2">✓ Bot verified successfully</h4>
+                                    <div class="text-xs text-green-700 space-y-1 mb-3">
+                                        <p><strong>Bot ID:</strong> {{ $botInfo['id'] ?? 'N/A' }}</p>
+                                        <p><strong>Bot Name:</strong> @{{ $botInfo['username'] ?? 'N/A' }}</p>
+                                        <p><strong>Display Name:</strong> {{ $botInfo['first_name'] ?? 'N/A' }}</p>
+                                        <p><strong>Can Join Groups:</strong> {{ $botInfo['can_join_groups'] ? '✓ Yes' : '✗ No' }}</p>
+                                    </div>
+
+                                    <!-- Webhook Actions -->
+                                    <div class="flex gap-2 mt-3 pt-3 border-t border-green-200 flex-wrap">
+                                        <button
+                                            type="button"
+                                            wire:click="setWebhook"
+                                            wire:loading.attr="disabled"
+                                            class="text-xs bg-blue-600 text-white px-3 py-1.5 rounded hover:bg-blue-700 transition-colors disabled:opacity-50 font-medium">
+                                            <span wire:loading.remove>🔗 Set Webhook</span>
+                                            <span wire:loading><svg class="animate-spin inline w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg></span>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            wire:click="getWebhookInfo"
+                                            wire:loading.attr="disabled"
+                                            class="text-xs bg-green-600 text-white px-3 py-1.5 rounded hover:bg-green-700 transition-colors disabled:opacity-50 font-medium">
+                                            <span wire:loading.remove>ℹ️ Get Info</span>
+                                            <span wire:loading><svg class="animate-spin inline w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg></span>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            wire:click="deleteWebhook"
+                                            wire:loading.attr="disabled"
+                                            class="text-xs bg-red-600 text-white px-3 py-1.5 rounded hover:bg-red-700 transition-colors disabled:opacity-50 font-medium">
+                                            <span wire:loading.remove>🗑️ Delete</span>
+                                            <span wire:loading><svg class="animate-spin inline w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg></span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Webhook Info Card -->
+                        @if($webhookInfo)
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                <h4 class="font-semibold text-blue-900 text-sm mb-3">🔗 Webhook Information</h4>
+                                <div class="space-y-2 text-xs text-blue-800">
+                                    @if($webhookInfo['url'] ?? false)
+                                        <p><strong>URL:</strong> <code class="bg-blue-100 px-1 rounded break-all">{{ $webhookInfo['url'] }}</code></p>
+                                    @else
+                                        <p class="text-blue-600"><strong>Status:</strong> No webhook configured</p>
+                                    @endif
+
+                                    @if(isset($webhookInfo['has_custom_certificate']))
+                                        <p><strong>Custom Certificate:</strong> {{ $webhookInfo['has_custom_certificate'] ? '✓ Yes' : '✗ No' }}</p>
+                                    @endif
+
+                                    @if(isset($webhookInfo['pending_update_count']))
+                                        <p><strong>Pending Updates:</strong> {{ $webhookInfo['pending_update_count'] }}</p>
+                                    @endif
+
+                                    @if(isset($webhookInfo['last_error_date']))
+                                        <p><strong>Last Error:</strong> {{ $webhookInfo['last_error_date'] ? date('Y-m-d H:i:s', $webhookInfo['last_error_date']) : 'None' }}</p>
+                                    @endif
+
+                                    @if(isset($webhookInfo['last_error_message']))
+                                        <p><strong>Error Message:</strong> {{ $webhookInfo['last_error_message'] ?? 'None' }}</p>
+                                    @endif
+                                </div>
+                            </div>
+                        @endif
+
+                        <!-- Webhook Messages -->
+                        @if($webhookMessage)
+                            <div class="rounded-lg p-3 {{
+                                $webhookMessageType === 'success' ? 'bg-green-50 border border-green-200 text-green-700' :
+                                ($webhookMessageType === 'error' ? 'bg-red-50 border border-red-200 text-red-700' : 'bg-blue-50 border border-blue-200 text-blue-700')
+                            }}">
+                                <p class="text-xs font-medium">{{ $webhookMessage }}</p>
+                            </div>
+                        @endif
+                    @endif
 
                     <!-- Registration Approval -->
                     <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
@@ -163,8 +274,15 @@
                         type="button"
                         wire:click="save"
                         wire:loading.attr="disabled"
+                        {{ !$tokenVerified ? 'disabled' : '' }}
                         class="text-sm bg-brand-600 text-white font-medium px-4 py-2 rounded-lg hover:bg-brand-700 transition-colors disabled:opacity-50">
-                        <span wire:loading.remove>Create Bot</span>
+                        <span wire:loading.remove>
+                            @if(!$tokenVerified)
+                                Verify token first
+                            @else
+                                Create Bot
+                            @endif
+                        </span>
                         <span wire:loading>
                             <svg class="animate-spin inline w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                             Creating...
@@ -192,49 +310,38 @@
 
                 <!-- Content -->
                 <div class="px-6 py-5 space-y-5">
-                    <!-- Webhook Status Alert -->
-                    @if($createdBot->webhook_status === 'success')
+                    <!-- Bot Info -->
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <h3 class="font-semibold text-blue-900 text-sm mb-2">🤖 Bot Created Successfully</h3>
+                        <div class="text-xs text-blue-700 space-y-1">
+                            <p><strong>Bot ID:</strong> {{ $createdBot->tg_bot_id }}</p>
+                            <p><strong>Bot Name:</strong> @{{ $createdBot->tg_username }}</p>
+                            <p><strong>Display Name:</strong> {{ $createdBot->tg_first_name }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Webhook Status -->
+                    @if($createdBot->webhook_status)
                         <div class="bg-green-50 border border-green-200 rounded-lg p-4">
                             <div class="flex gap-3">
                                 <svg class="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                                 </svg>
                                 <div>
-                                    <h3 class="font-semibold text-green-900 text-sm">✅ Webhook Setup Complete</h3>
-                                    <p class="text-xs text-green-700 mt-1">Your bot is now receiving messages from Telegram. No additional configuration needed on Telegram's side.</p>
-                                </div>
-                            </div>
-                        </div>
-                    @elseif($createdBot->webhook_status === 'failed')
-                        <div class="bg-red-50 border border-red-200 rounded-lg p-4">
-                            <div class="flex gap-3">
-                                <svg class="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-                                </svg>
-                                <div>
-                                    <h3 class="font-semibold text-red-900 text-sm">⚠️ Webhook Setup Failed</h3>
-                                    <p class="text-xs text-red-700 mt-1">Unable to connect your bot to Telegram. This might be a temporary issue. Please try again.</p>
-                                    <button
-                                        type="button"
-                                        wire:click="retryWebhook"
-                                        wire:loading.attr="disabled"
-                                        class="text-xs bg-red-600 text-white font-medium px-3 py-1.5 rounded mt-2 hover:bg-red-700 transition-colors disabled:opacity-50">
-                                        <span wire:loading.remove>🔄 Retry Webhook</span>
-                                        <span wire:loading>
-                                            <svg class="animate-spin inline w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                                            Retrying...
-                                        </span>
-                                    </button>
+                                    <h3 class="font-semibold text-green-900 text-sm">✅ Webhook Active</h3>
+                                    <p class="text-xs text-green-700 mt-1">Your bot webhook is configured and ready to receive updates.</p>
                                 </div>
                             </div>
                         </div>
                     @else
                         <div class="bg-amber-50 border border-amber-200 rounded-lg p-4">
                             <div class="flex gap-3">
-                                <svg class="animate-spin w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                <svg class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                </svg>
                                 <div>
-                                    <h3 class="font-semibold text-amber-900 text-sm">⏳ Setting up webhook...</h3>
-                                    <p class="text-xs text-amber-700 mt-1">Configuring your bot with Telegram</p>
+                                    <h3 class="font-semibold text-amber-900 text-sm">⏳ Webhook Not Configured</h3>
+                                    <p class="text-xs text-amber-700 mt-1">Configure webhook using the buttons below.</p>
                                 </div>
                             </div>
                         </div>
@@ -249,14 +356,69 @@
                         <p class="text-xs text-gray-500 mt-1">This is the endpoint that receives updates from Telegram</p>
                     </div>
 
-                    <!-- Webhook Secret -->
-                    <div>
-                        <label class="block text-xs font-medium text-gray-600 mb-2">Webhook Secret</label>
-                        <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 font-mono text-xs text-gray-700 break-all">
-                            {{ $createdBot->webhook_secret }}
-                        </div>
-                        <p class="text-xs text-gray-500 mt-1">Used to verify webhook requests from Telegram</p>
+                    <!-- Webhook Actions -->
+                    <div class="flex gap-2 flex-wrap">
+                        <button
+                            type="button"
+                            wire:click="setWebhook"
+                            wire:loading.attr="disabled"
+                            class="text-xs bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 font-medium">
+                            <span wire:loading.remove>🔗 Set Webhook</span>
+                            <span wire:loading><svg class="animate-spin inline w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg></span>
+                        </button>
+                        <button
+                            type="button"
+                            wire:click="getWebhookInfo"
+                            wire:loading.attr="disabled"
+                            class="text-xs bg-green-600 text-white px-3 py-2 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 font-medium">
+                            <span wire:loading.remove>ℹ️ Get Info</span>
+                            <span wire:loading><svg class="animate-spin inline w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg></span>
+                        </button>
+                        <button
+                            type="button"
+                            wire:click="deleteWebhook"
+                            wire:loading.attr="disabled"
+                            class="text-xs bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 font-medium">
+                            <span wire:loading.remove>🗑️ Delete</span>
+                            <span wire:loading><svg class="animate-spin inline w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg></span>
+                        </button>
                     </div>
+
+                    <!-- Webhook Info Card -->
+                    @if($webhookInfo)
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                            <h4 class="font-semibold text-blue-900 text-sm mb-3">🔗 Webhook Information</h4>
+                            <div class="space-y-2 text-xs text-blue-800">
+                                @if($webhookInfo['url'] ?? false)
+                                    <p><strong>URL:</strong> <code class="bg-blue-100 px-1 rounded break-all">{{ $webhookInfo['url'] }}</code></p>
+                                @else
+                                    <p class="text-blue-600"><strong>Status:</strong> No webhook configured</p>
+                                @endif
+
+                                @if(isset($webhookInfo['pending_update_count']))
+                                    <p><strong>Pending Updates:</strong> {{ $webhookInfo['pending_update_count'] }}</p>
+                                @endif
+
+                                @if(isset($webhookInfo['last_error_date']))
+                                    <p><strong>Last Error:</strong> {{ $webhookInfo['last_error_date'] ? date('Y-m-d H:i:s', $webhookInfo['last_error_date']) : 'None' }}</p>
+                                @endif
+
+                                @if(isset($webhookInfo['last_error_message']))
+                                    <p><strong>Error Message:</strong> {{ $webhookInfo['last_error_message'] ?? 'None' }}</p>
+                                @endif
+                            </div>
+                        </div>
+                    @endif
+
+                    <!-- Webhook Messages -->
+                    @if($webhookMessage)
+                        <div class="rounded-lg p-3 {{
+                            $webhookMessageType === 'success' ? 'bg-green-50 border border-green-200 text-green-700' :
+                            ($webhookMessageType === 'error' ? 'bg-red-50 border border-red-200 text-red-700' : 'bg-blue-50 border border-blue-200 text-blue-700')
+                        }}">
+                            <p class="text-xs font-medium">{{ $webhookMessage }}</p>
+                        </div>
+                    @endif
 
                     <!-- Response Format -->
                     <div>

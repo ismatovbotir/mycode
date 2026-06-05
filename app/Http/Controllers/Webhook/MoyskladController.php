@@ -15,10 +15,6 @@ class MoyskladController
 {
     public function handle(Request $request, Bot $bot): JsonResponse
     {
-        if (!$this->validateSecret($request, $bot)) {
-            return response()->json(['error' => 'Unauthorized'], 403);
-        }
-
         $payload = $request->json()->all();
 
         if (!$this->isValidPayload($payload)) {
@@ -31,12 +27,6 @@ class MoyskladController
             $this->logError($bot, $payload, $e);
             return response()->json(['error' => 'Server error'], 500);
         }
-    }
-
-    private function validateSecret(Request $request, Bot $bot): bool
-    {
-        $header = $request->header('X-Webhook-Secret') ?? '';
-        return hash_equals($bot->webhook_secret, $header);
     }
 
     private function isValidPayload(array $payload): bool

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 
 class TelegramService
 {
@@ -111,5 +110,80 @@ class TelegramService
         $response = Http::get("{$this->apiUrl}{$token}/deleteWebhook");
 
         return $response->ok() && $response->json('ok') === true;
+    }
+
+    public function getMe(string $token): array
+    {
+        try {
+            $response = Http::get("{$this->apiUrl}{$token}/getMe");
+            $data = $response->json();
+
+            if ($response->ok() && ($data['ok'] ?? false) === true) {
+                return [
+                    'success' => true,
+                    'result' => $data['result'] ?? [],
+                ];
+            }
+
+            return [
+                'success' => false,
+                'message' => $data['description'] ?? 'Invalid bot token',
+            ];
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'message' => 'Connection error: ' . $e->getMessage(),
+            ];
+        }
+    }
+
+    public function getWebhookInfo(string $token): array
+    {
+        try {
+            $response = Http::get("{$this->apiUrl}{$token}/getWebhookInfo");
+            $data = $response->json();
+
+            if ($response->ok() && ($data['ok'] ?? false) === true) {
+                return [
+                    'success' => true,
+                    'result' => $data['result'] ?? [],
+                ];
+            }
+
+            return [
+                'success' => false,
+                'message' => $data['description'] ?? 'Failed to get webhook info',
+            ];
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'message' => 'Connection error: ' . $e->getMessage(),
+            ];
+        }
+    }
+
+    public function deleteWebhookInfo(string $token): array
+    {
+        try {
+            $response = Http::post("{$this->apiUrl}{$token}/deleteWebhook");
+            $data = $response->json();
+
+            if ($response->ok() && ($data['ok'] ?? false) === true) {
+                return [
+                    'success' => true,
+                    'message' => 'Webhook deleted successfully',
+                ];
+            }
+
+            return [
+                'success' => false,
+                'message' => $data['description'] ?? 'Failed to delete webhook',
+            ];
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'message' => 'Connection error: ' . $e->getMessage(),
+            ];
+        }
     }
 }

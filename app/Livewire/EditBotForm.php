@@ -80,14 +80,14 @@ class EditBotForm extends Component
             $result = $telegramService->setWebhook(decrypt($this->bot->tg_bot_token), $webhookUrl);
 
             if ($result['success']) {
-                $this->bot->update(['webhook_status' => 'success']);
+                $this->bot->update(['webhook_status' => true]);
                 session()->flash('success', 'Telegram webhook set successfully!');
             } else {
-                $this->bot->update(['webhook_status' => 'failed']);
+                $this->bot->update(['webhook_status' => false]);
                 session()->flash('error', 'Failed to set webhook: ' . ($result['message'] ?? 'Unknown error'));
             }
         } catch (\Exception $e) {
-            $this->bot->update(['webhook_status' => 'failed']);
+            $this->bot->update(['webhook_status' => false]);
             session()->flash('error', 'Error setting webhook: ' . $e->getMessage());
         }
 

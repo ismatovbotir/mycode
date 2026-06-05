@@ -46,9 +46,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', fn() => view('dashboard-admin'))->name('dashboard');
 
     Route::get('/bots', [BotController::class, 'index'])->name('bots.index');
-    Route::get('/bots/{bot}', [BotController::class, 'show'])->name('bots.show');
-    Route::get('/bots/{bot}/edit', [BotController::class, 'edit'])->name('bots.edit');
-    Route::put('/bots/{bot}', [BotController::class, 'update'])->name('bots.update');
     Route::patch('/bots/{bot}/toggle-active', [BotController::class, 'toggleActive'])->name('bots.toggleActive');
     Route::get('/bots/{bot}/clients', [BotController::class, 'clients'])->name('bots.clients');
     Route::post('/bots/{bot}/clients/{client}/approve', [BotController::class, 'approveClient'])->name('bots.clients.approve');

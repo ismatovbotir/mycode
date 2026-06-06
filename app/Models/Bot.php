@@ -24,6 +24,7 @@ class Bot extends Model
         'tg_bot_metadata' => 'array',
         'is_active' => 'boolean',
         'requires_admin_approval' => 'boolean',
+        'webhook_status' => 'boolean',
         'tg_bot_token' => 'encrypted',
     ];
 

@@ -10,6 +10,7 @@ use App\Services\DeveloperNotificationService;
 use App\Services\TelegramService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
 
@@ -35,6 +36,15 @@ class TelegramWebhookController
 
     public function handle(Request $request, Bot $bot): JsonResponse
     {
+        // 🤖 Bot Webhook Handler - Log which bot is processing this request
+        Log::channel('telegram')->info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', [
+            'event' => '🤖 WEBHOOK HANDLER START',
+            'bot_id' => $bot->id,
+            'bot_name' => $bot->name,
+            'tg_bot_id' => $bot->tg_bot_id,
+            'tg_username' => $bot->tg_username,
+        ]);
+
         $update = $request->json()->all();
 
         Log::channel('telegram')->info('Webhook received', [
@@ -111,6 +121,12 @@ class TelegramWebhookController
             ]);
             return response()->json(['ok' => false, 'error' => $e->getMessage()]);
         }
+
+        Log::channel('telegram')->info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', [
+            'event' => '✅ WEBHOOK HANDLER COMPLETE',
+            'bot_name' => $bot->name,
+            'status' => 'success',
+        ]);
 
         return response()->json(['ok' => true]);
     }

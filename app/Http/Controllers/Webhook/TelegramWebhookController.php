@@ -158,21 +158,83 @@ class TelegramWebhookController
 
     private function handleStart(Bot $bot, string $token, int $chatId, TgUser $tgUser): void
     {
-        $greeting = $bot->content['greeting'][$tgUser->lang] ?? $bot->content['greeting']['ru'] ?? 'Welcome!';
-
-        $this->telegramService->sendMessage($token, $chatId, $greeting);
-        $this->telegramService->sendLanguageKeyboard($token, $chatId);
-
-        $this->sessionService->set($bot->id, $chatId, [
-            'state' => 'lang',
-            'lang' => $tgUser->lang,
-            'first_name' => null,
-            'last_name' => null,
+        Log::channel('telegram')->info('━━ HANDLE /START BEGIN ━━', [
+            'chat_id' => $chatId,
+            'bot_id' => $bot->id,
+            'tg_user_id' => $tgUser->id,
         ]);
+
+        try {
+            Log::channel('telegram')->debug('Step 1: Getting greeting message', [
+                'bot_content' => $bot->content,
+                'tg_user_lang' => $tgUser->lang,
+            ]);
+
+            $greeting = $bot->content['greeting'][$tgUser->lang] ?? $bot->content['greeting']['ru'] ?? 'Welcome!';
+
+            Log::channel('telegram')->debug('Step 2: Greeting message retrieved', [
+                'greeting_length' => strlen($greeting),
+                'greeting_preview' => substr($greeting, 0, 100),
+            ]);
+
+            Log::channel('telegram')->debug('Step 3: Sending greeting message', [
+                'chat_id' => $chatId,
+                'token_preview' => substr($token, 0, 10) . '...',
+            ]);
+
+            $messageResponse = $this->telegramService->sendMessage($token, $chatId, $greeting);
+
+            Log::channel('telegram')->debug('Step 4: Greeting sent response', [
+                'response' => $messageResponse,
+            ]);
+
+            Log::channel('telegram')->debug('Step 5: Sending language keyboard', [
+                'chat_id' => $chatId,
+            ]);
+
+            $keyboardResponse = $this->telegramService->sendLanguageKeyboard($token, $chatId);
+
+            Log::channel('telegram')->debug('Step 6: Keyboard sent response', [
+                'response' => $keyboardResponse,
+            ]);
+
+            Log::channel('telegram')->debug('Step 7: Setting session', [
+                'bot_id' => $bot->id,
+                'chat_id' => $chatId,
+                'state' => 'lang',
+                'lang' => $tgUser->lang,
+            ]);
+
+            $this->sessionService->set($bot->id, $chatId, [
+                'state' => 'lang',
+                'lang' => $tgUser->lang,
+                'first_name' => null,
+                'last_name' => null,
+            ]);
+
+            Log::channel('telegram')->info('✓ /START workflow completed successfully', [
+                'chat_id' => $chatId,
+                'bot_id' => $bot->id,
+            ]);
+
+        } catch (\Exception $e) {
+            Log::channel('telegram')->error('❌ /START workflow failed', [
+                'error' => $e->getMessage(),
+                'exception' => get_class($e),
+                'trace' => $e->getTraceAsString(),
+                'chat_id' => $chatId,
+            ]);
+            throw $e;
+        }
     }
 
     private function handleLanguageSelection(Bot $bot, string $token, int $chatId, ?string $text, array $session): void
     {
+        Log::channel('telegram')->info('━━ HANDLE LANGUAGE SELECTION ━━', [
+            'chat_id' => $chatId,
+            'selected_text' => $text,
+        ]);
+
         $langMap = [
             "🇺🇿 O'zbek" => 'uz',
             '🇬🇧 English' => 'en',
@@ -181,7 +243,14 @@ class TelegramWebhookController
 
         $lang = $langMap[$text] ?? 'ru';
 
+        Log::channel('telegram')->debug('Language selected', [
+            'text' => $text,
+            'mapped_lang' => $lang,
+        ]);
+
         TgUser::where('id', (string) $chatId)->update(['lang' => $lang]);
+
+        Log::channel('telegram')->debug('TgUser lang updated', ['lang' => $lang]);
 
         $messages = [
             'uz' => 'Iltimos, ismingiz va familiyangizni kiriting:',
@@ -199,13 +268,29 @@ class TelegramWebhookController
 
     private function handleNameInput(Bot $bot, string $token, int $chatId, ?string $text, array $session): void
     {
+        Log::channel('telegram')->info('━━ HANDLE NAME INPUT ━━', [
+            'chat_id' => $chatId,
+            'text' => $text,
+        ]);
+
         $parts = explode(' ', trim($text ?? ''), 2);
         $firstName = $parts[0] ?? '';
         $lastName = $parts[1] ?? '';
 
+        Log::channel('telegram')->debug('Name parsed', [
+            'first_name' => $firstName,
+            'last_name' => $lastName,
+        ]);
+
         TgUser::where('id', (string) $chatId)->update([
             'first_name' => $firstName,
             'last_name' => $lastName,
+        ]);
+
+        Log::channel('telegram')->debug('TgUser name updated');
+
+        Log::channel('telegram')->debug('Requesting contact', [
+            'lang' => $session['lang'],
         ]);
 
         $this->telegramService->requestContact($token, $chatId, $session['lang']);

@@ -38,24 +38,24 @@ class TelegramWebhookController
     public function handle(Request $request, Bot $bot): JsonResponse
     {
         // 🤖 Bot Webhook Handler - Log which bot is processing this request
-        Log::channel('telegram')->info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', [
-            'event' => '🤖 WEBHOOK HANDLER START',
-            'bot_id' => $bot->id,
-            'bot_name' => $bot->name,
-            'tg_bot_id' => $bot->tg_bot_id,
-            'tg_username' => $bot->tg_username,
-        ]);
+        // Log::channel('telegram')->info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', [
+        //     'event' => '🤖 WEBHOOK HANDLER START',
+        //     'bot_id' => $bot->id,
+        //     'bot_name' => $bot->name,
+        //     'tg_bot_id' => $bot->tg_bot_id,
+        //     'tg_username' => $bot->tg_username,
+        // ]);
 
         $update = $request->json()->all();
 
-        Log::channel('telegram')->info('Webhook received', [
-            'bot_id' => $bot->id,
-            'bot_name' => $bot->name,
-            'update' => $update,
-        ]);
+        // Log::channel('telegram')->info('Webhook received', [
+        //     'bot_id' => $bot->id,
+        //     'bot_name' => $bot->name,
+        //     'update' => $update,
+        // ]);
 
         if (!isset($update['message'])) {
-            Log::channel('telegram')->debug('No message in update', ['update_keys' => array_keys($update)]);
+            //Log::channel('telegram')->debug('No message in update', ['update_keys' => array_keys($update)]);
             return response()->json(['ok' => true]);
         }
 
@@ -74,10 +74,10 @@ class TelegramWebhookController
 
         try {
             $tgUser = $this->getOrCreateTgUser($message);
-            Log::channel('telegram')->info('TgUser processed', [
-                'tg_user_id' => $tgUser->id,
-                'chat_id' => $chatId,
-            ]);
+            // Log::channel('telegram')->info('TgUser processed', [
+            //     'tg_user_id' => $tgUser->id,
+            //     'chat_id' => $chatId,
+            // ]);
         } catch (\Exception $e) {
             Log::channel('telegram')->error('Failed to get/create TgUser', [
                 'error' => $e->getMessage(),
@@ -216,7 +216,6 @@ class TelegramWebhookController
                 'chat_id' => $chatId,
                 'bot_id' => $bot->id,
             ]);
-
         } catch (\Exception $e) {
             Log::channel('telegram')->error('❌ /START workflow failed', [
                 'error' => $e->getMessage(),
@@ -350,11 +349,11 @@ class TelegramWebhookController
                 ]
             );
 
-            Log::channel('telegram')->info('BotClient created/updated successfully', [
-                'bot_client_id' => $botClient->id,
-                'bot_id' => $botClient->bot_id,
-                'tg_user_id' => $botClient->tg_user_id,
-            ]);
+            // Log::channel('telegram')->info('BotClient created/updated successfully', [
+            //     'bot_client_id' => $botClient->id,
+            //     'bot_id' => $botClient->bot_id,
+            //     'tg_user_id' => $botClient->tg_user_id,
+            // ]);
         } catch (\Exception $e) {
             Log::channel('telegram')->error('Failed to create BotClient', [
                 'error' => $e->getMessage(),
@@ -363,10 +362,10 @@ class TelegramWebhookController
             return;
         }
 
-        Log::channel('telegram')->info('Sending registration notification', [
-            'bot_name' => $bot->name,
-            'tg_user_id' => $tgUser->id,
-        ]);
+        // Log::channel('telegram')->info('Sending registration notification', [
+        //     'bot_name' => $bot->name,
+        //     'tg_user_id' => $tgUser->id,
+        // ]);
 
         $this->notifier->notifyUserRegistered(
             $bot->name,
@@ -385,10 +384,10 @@ class TelegramWebhookController
 
         $this->telegramService->sendMessage($token, $chatId, $messages[$lang] ?? $messages['ru']);
 
-        Log::channel('telegram')->info('Registration flow completed', [
-            'tg_user_id' => $tgUser->id,
-            'chat_id' => $chatId,
-        ]);
+        // Log::channel('telegram')->info('Registration flow completed', [
+        //     'tg_user_id' => $tgUser->id,
+        //     'chat_id' => $chatId,
+        // ]);
 
         $this->sessionService->forget($bot->id, $chatId);
     }

@@ -8,7 +8,7 @@ class BotSessionService
 {
     private const TTL = 86400; // 24 часа
 
-    public function get(int $botId, int $chatId): ?array
+    public function get(string $botId, string $chatId): ?array
     {
         $key = $this->getKey($botId, $chatId);
         $data = Redis::get($key);

@@ -29,7 +29,7 @@ class ClientGroupAssigner extends Component
     public function loadSelectedGroups()
     {
         $this->selectedGroups = $this->client->groups()
-            ->pluck('id')
+            ->pluck('client_groups.id')
             ->toArray();
     }
 

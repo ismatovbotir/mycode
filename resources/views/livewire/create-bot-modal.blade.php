@@ -1,6 +1,18 @@
 <div class="max-w-6xl mx-auto p-6">
-    <h1 class="text-3xl font-bold mb-2">Telegram Webhook Tester</h1>
-    <p class="text-gray-600 mb-6">Enter your bot token and manage webhooks</p>
+    <h2 class="text-2xl font-semibold mb-2">
+        @if(auth()->user()->bot)
+            🔧 Webhook Configuration
+        @else
+            🤖 Add Your Bot
+        @endif
+    </h2>
+    <p class="text-gray-600 mb-6">
+        @if(auth()->user()->bot)
+            Manage your Telegram webhook settings
+        @else
+            Enter your Telegram bot token to get started
+        @endif
+    </p>
 
     <!-- Token Input Section -->
     <div class="bg-white rounded-xl border border-gray-200 p-6 mb-6">

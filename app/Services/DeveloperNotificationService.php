@@ -8,9 +8,15 @@ use Illuminate\Support\Facades\Log;
 
 class DeveloperNotificationService
 {
-    private string $botToken = '8475181136:AAGV5qzn4LdWe-YfejC3hoJ-FJbI_U8EhiM';
-    private string $developerId = '1936361';
+    private string $botToken;
+    private string $developerId;
     private string $apiUrl = 'https://api.telegram.org/bot';
+
+    public function __construct()
+    {
+        $this->botToken = config('app.bot_token') ?? env('bot_token', '');
+        $this->developerId = config('app.bot_chat_id') ?? env('bot_chat_id', '');
+    }
 
     public function notifyWebhookReceived(string $botName, string $eventType, ?array $payload = null): void
     {
@@ -183,6 +189,11 @@ class DeveloperNotificationService
 
     private function send(string $message): void
     {
+        if (!$this->botToken || !$this->developerId) {
+            Log::channel('telegram')->warning('Developer notification skipped - credentials not configured');
+            return;
+        }
+
         try {
             $url = $this->apiUrl . $this->botToken . '/sendMessage';
             $payload = [

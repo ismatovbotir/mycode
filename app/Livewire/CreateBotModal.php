@@ -20,6 +20,18 @@ class CreateBotModal extends Component
     public ?array $currentResponse = null;
     public string $lastAction = '';
 
+    public function mount(): void
+    {
+        $bot = auth()->user()->bot;
+        if ($bot) {
+            $this->botUuid = $bot->id;
+            $this->tg_bot_token = decrypt($bot->tg_bot_token);
+            // Auto-verify the existing bot
+            $this->verifyToken();
+            // Auto-load webhook info
+            $this->getWebhookInfo();
+        }
+    }
 
     public function verifyToken(): void
     {

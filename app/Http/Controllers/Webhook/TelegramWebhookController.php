@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Webhook;
 use App\Models\Bot;
 use App\Models\BotClient;
 use App\Models\TgUser;
+use App\Models\TgUserMessage;
 use App\Services\BotSessionService;
 use App\Services\DeveloperNotificationService;
 use App\Services\TelegramService;
@@ -83,6 +84,16 @@ class TelegramWebhookController
                 'message' => $message,
             ]);
             return response()->json(['ok' => false, 'error' => 'TgUser creation failed']);
+        }
+
+        // Save message to database
+        try {
+            $this->saveUserMessage($bot, $tgUser, $message, $update);
+        } catch (\Exception $e) {
+            Log::channel('telegram')->warning('Failed to save user message', [
+                'error' => $e->getMessage(),
+            ]);
+            // Don't fail the entire webhook if message saving fails
         }
 
         $session = $this->sessionService->get($bot->id, $chatId);
@@ -297,5 +308,50 @@ class TelegramWebhookController
                 'lang' => 'uz',
             ]
         );
+    }
+
+    private function saveUserMessage(Bot $bot, TgUser $tgUser, array $message, array $update): void
+    {
+        $messageId = $message['message_id'];
+        $text = $message['text'] ?? null;
+        $messageType = 'text';
+
+        // Determine message type
+        if (isset($message['photo'])) {
+            $messageType = 'photo';
+            $text = $message['caption'] ?? '[Photo]';
+        } elseif (isset($message['document'])) {
+            $messageType = 'document';
+            $text = $message['caption'] ?? '[Document]';
+        } elseif (isset($message['audio'])) {
+            $messageType = 'audio';
+            $text = $message['caption'] ?? '[Audio]';
+        } elseif (isset($message['video'])) {
+            $messageType = 'video';
+            $text = $message['caption'] ?? '[Video]';
+        } elseif (isset($message['contact'])) {
+            $messageType = 'contact';
+            $text = '[Contact: ' . ($message['contact']['phone_number'] ?? 'unknown') . ']';
+        }
+
+        TgUserMessage::updateOrCreate(
+            [
+                'bot_id' => $bot->id,
+                'message_id' => $messageId,
+            ],
+            [
+                'tg_user_id' => $tgUser->id,
+                'message' => $text ?? '[No text]',
+                'message_type' => $messageType,
+                'raw_update' => $update,
+            ]
+        );
+
+        Log::channel('telegram')->debug('User message saved', [
+            'bot_id' => $bot->id,
+            'tg_user_id' => $tgUser->id,
+            'message_id' => $messageId,
+            'message_type' => $messageType,
+        ]);
     }
 }

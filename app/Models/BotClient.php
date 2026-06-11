@@ -33,7 +33,7 @@ class BotClient extends Model
 
     public function tgUser(): BelongsTo
     {
-        return $this->belongsTo(TgUser::class);
+        return $this->belongsTo(TgUser::class, 'tg_user_id', 'id');
     }
 
     public function client(): BelongsTo

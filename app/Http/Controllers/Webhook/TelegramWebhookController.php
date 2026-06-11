@@ -37,28 +37,79 @@ class TelegramWebhookController
     {
         $update = $request->json()->all();
 
+        Log::channel('telegram')->info('Webhook received', [
+            'bot_id' => $bot->id,
+            'bot_name' => $bot->name,
+            'update' => $update,
+        ]);
+
         if (!isset($update['message'])) {
+            Log::channel('telegram')->debug('No message in update', ['update_keys' => array_keys($update)]);
             return response()->json(['ok' => true]);
         }
 
         $message = $update['message'];
         $chatId = $message['chat']['id'];
-        $token = decrypt($bot->tg_bot_token);
 
-        $tgUser = $this->getOrCreateTgUser($message);
+        try {
+            $token = decrypt($bot->tg_bot_token);
+        } catch (\Exception $e) {
+            Log::channel('telegram')->error('Failed to decrypt bot token', [
+                'bot_id' => $bot->id,
+                'error' => $e->getMessage(),
+            ]);
+            return response()->json(['ok' => false, 'error' => 'Token decryption failed']);
+        }
+
+        try {
+            $tgUser = $this->getOrCreateTgUser($message);
+            Log::channel('telegram')->info('TgUser processed', [
+                'tg_user_id' => $tgUser->id,
+                'chat_id' => $chatId,
+            ]);
+        } catch (\Exception $e) {
+            Log::channel('telegram')->error('Failed to get/create TgUser', [
+                'error' => $e->getMessage(),
+                'message' => $message,
+            ]);
+            return response()->json(['ok' => false, 'error' => 'TgUser creation failed']);
+        }
+
         $session = $this->sessionService->get($bot->id, $chatId);
+        Log::channel('telegram')->info('Session retrieved', [
+            'bot_id' => $bot->id,
+            'chat_id' => $chatId,
+            'session' => $session,
+        ]);
 
         $text = $message['text'] ?? null;
         $contact = $message['contact'] ?? null;
 
-        if ($text === '/start' || !$session) {
-            $this->handleStart($bot, $token, $chatId, $tgUser);
-        } elseif ($session['state'] === 'lang') {
-            $this->handleLanguageSelection($bot, $token, $chatId, $text, $session);
-        } elseif ($session['state'] === 'full_name') {
-            $this->handleNameInput($bot, $token, $chatId, $text, $session);
-        } elseif ($session['state'] === 'phone') {
-            $this->handlePhoneInput($bot, $token, $chatId, $contact, $tgUser, $session);
+        try {
+            if ($text === '/start' || !$session) {
+                Log::channel('telegram')->info('Handling /start', ['chat_id' => $chatId]);
+                $this->handleStart($bot, $token, $chatId, $tgUser);
+            } elseif ($session['state'] === 'lang') {
+                Log::channel('telegram')->info('Handling language selection', ['chat_id' => $chatId, 'text' => $text]);
+                $this->handleLanguageSelection($bot, $token, $chatId, $text, $session);
+            } elseif ($session['state'] === 'full_name') {
+                Log::channel('telegram')->info('Handling name input', ['chat_id' => $chatId, 'text' => $text]);
+                $this->handleNameInput($bot, $token, $chatId, $text, $session);
+            } elseif ($session['state'] === 'phone') {
+                Log::channel('telegram')->info('Handling phone input', ['chat_id' => $chatId, 'has_contact' => (bool)$contact]);
+                $this->handlePhoneInput($bot, $token, $chatId, $contact, $tgUser, $session);
+            } else {
+                Log::channel('telegram')->warning('Unknown session state', [
+                    'state' => $session['state'] ?? 'null',
+                    'chat_id' => $chatId,
+                ]);
+            }
+        } catch (\Exception $e) {
+            Log::channel('telegram')->error('Error processing webhook message', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            return response()->json(['ok' => false, 'error' => $e->getMessage()]);
         }
 
         return response()->json(['ok' => true]);
@@ -89,7 +140,7 @@ class TelegramWebhookController
 
         $lang = $langMap[$text] ?? 'ru';
 
-        TgUser::where('chat_id', $chatId)->update(['lang' => $lang]);
+        TgUser::where('id', (string) $chatId)->update(['lang' => $lang]);
 
         $messages = [
             'uz' => 'Iltimos, ismingiz va familiyangizni kiriting:',
@@ -111,7 +162,7 @@ class TelegramWebhookController
         $firstName = $parts[0] ?? '';
         $lastName = $parts[1] ?? '';
 
-        TgUser::where('chat_id', $chatId)->update([
+        TgUser::where('id', (string) $chatId)->update([
             'first_name' => $firstName,
             'last_name' => $lastName,
         ]);
@@ -133,7 +184,7 @@ class TelegramWebhookController
             return;
         }
 
-        TgUser::where('chat_id', $chatId)->update(['phone' => $phone]);
+        TgUser::where('id', (string) $chatId)->update(['phone' => $phone]);
 
         $approved = !$bot->requires_admin_approval;
         BotClient::updateOrCreate(
@@ -167,13 +218,15 @@ class TelegramWebhookController
     private function getOrCreateTgUser(array $message): TgUser
     {
         $from = $message['from'];
+        $telegramUserId = (string) $from['id'];
 
         return TgUser::firstOrCreate(
-            ['chat_id' => $from['id']],
+            ['id' => $telegramUserId],
             [
                 'first_name' => $from['first_name'] ?? null,
                 'last_name' => $from['last_name'] ?? null,
                 'username' => $from['username'] ?? null,
+                'lang' => 'uz',
             ]
         );
     }

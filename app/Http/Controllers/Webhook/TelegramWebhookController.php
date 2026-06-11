@@ -181,19 +181,66 @@ class TelegramWebhookController
         $phone = $contact['phone_number'] ?? null;
 
         if (!$phone) {
+            Log::channel('telegram')->warning('No phone provided in contact', ['chat_id' => $chatId]);
             return;
         }
 
-        TgUser::where('id', (string) $chatId)->update(['phone' => $phone]);
+        Log::channel('telegram')->info('Updating TgUser with phone', [
+            'tg_user_id' => (string) $chatId,
+            'phone' => $phone,
+        ]);
+
+        $tgUser = TgUser::where('id', (string) $chatId)->first();
+        if (!$tgUser) {
+            Log::channel('telegram')->error('TgUser not found after first/create', ['id' => (string) $chatId]);
+            return;
+        }
+
+        $tgUser->update(['phone' => $phone]);
+        Log::channel('telegram')->info('TgUser phone updated', [
+            'tg_user_id' => $tgUser->id,
+            'phone' => $tgUser->phone,
+        ]);
 
         $approved = !$bot->requires_admin_approval;
-        BotClient::updateOrCreate(
-            ['bot_id' => $bot->id, 'tg_user_id' => $tgUser->id],
-            [
-                'approved' => $approved,
-                'approved_at' => $approved ? now() : null,
-            ]
-        );
+
+        $botId = (string) $bot->id;
+        $tgUserId = (string) $tgUser->id;
+
+        Log::channel('telegram')->info('Creating BotClient', [
+            'bot_id' => $botId,
+            'bot_id_type' => gettype($botId),
+            'tg_user_id' => $tgUserId,
+            'tg_user_id_type' => gettype($tgUserId),
+            'approved' => $approved,
+        ]);
+
+        try {
+            $botClient = BotClient::updateOrCreate(
+                ['bot_id' => $botId, 'tg_user_id' => $tgUserId],
+                [
+                    'approved' => $approved,
+                    'approved_at' => $approved ? now() : null,
+                ]
+            );
+
+            Log::channel('telegram')->info('BotClient created/updated successfully', [
+                'bot_client_id' => $botClient->id,
+                'bot_id' => $botClient->bot_id,
+                'tg_user_id' => $botClient->tg_user_id,
+            ]);
+        } catch (\Exception $e) {
+            Log::channel('telegram')->error('Failed to create BotClient', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            return;
+        }
+
+        Log::channel('telegram')->info('Sending registration notification', [
+            'bot_name' => $bot->name,
+            'tg_user_id' => $tgUser->id,
+        ]);
 
         $this->notifier->notifyUserRegistered(
             $bot->name,
@@ -203,7 +250,7 @@ class TelegramWebhookController
             $session['lang'] ?? 'uz'
         );
 
-        $lang = $session['lang'];
+        $lang = $session['lang'] ?? 'uz';
         $messages = [
             'uz' => 'Rahmat! Siz ro\'yxatga olindingiz.',
             'en' => 'Thank you! You are registered.',
@@ -211,6 +258,11 @@ class TelegramWebhookController
         ];
 
         $this->telegramService->sendMessage($token, $chatId, $messages[$lang] ?? $messages['ru']);
+
+        Log::channel('telegram')->info('Registration flow completed', [
+            'tg_user_id' => $tgUser->id,
+            'chat_id' => $chatId,
+        ]);
 
         $this->sessionService->forget($bot->id, $chatId);
     }

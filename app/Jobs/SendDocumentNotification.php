@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Jobs;
 
 use App\Models\WebhookEvent;
+use App\Services\DeveloperNotificationService;
 use App\Services\TelegramService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -60,6 +61,14 @@ class SendDocumentNotification implements ShouldQueue
                 'bot_client_id' => $botClient->id,
                 'chat_id' => $chatId,
             ]);
+
+            $notifier = new DeveloperNotificationService();
+            $notifier->notifyMessageSent(
+                $bot->name,
+                $botClient->tgUser->first_name . ' ' . $botClient->tgUser->last_name,
+                substr($message, 0, 150),
+                true
+            );
         } catch (Throwable $e) {
             Log::error('Failed to send document notification', [
                 'webhook_event_id' => $event->id,
@@ -81,5 +90,12 @@ class SendDocumentNotification implements ShouldQueue
             'webhook_event_id' => $this->webhookEventId,
             'error' => $e->getMessage(),
         ]);
+
+        $notifier = new DeveloperNotificationService();
+        $notifier->notifyJobFailed(
+            'SendDocumentNotification',
+            $event?->bot?->name ?? 'Unknown Bot',
+            $e->getMessage()
+        );
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\Notification;
+use App\Services\DeveloperNotificationService;
 use App\Services\TelegramService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -48,6 +49,14 @@ class SendTelegramNotification implements ShouldQueue
                     'chat_id' => $chatId,
                     'notif_uuid' => $this->notification->uuid,
                 ]);
+
+                $notifier = new DeveloperNotificationService();
+                $notifier->notifyMessageSent(
+                    $bot->name,
+                    $tgUser->first_name . ' ' . ($tgUser->last_name ?? ''),
+                    substr($this->notification->message, 0, 150),
+                    true
+                );
             } else {
                 $this->notification->update(['tg_status' => 'failed']);
                 $this->fail(new \Exception('Telegram API error: ' . json_encode($response)));
@@ -71,5 +80,12 @@ class SendTelegramNotification implements ShouldQueue
     public function failed(\Throwable $exception): void
     {
         $this->notification->update(['tg_status' => 'failed']);
+
+        $notifier = new DeveloperNotificationService();
+        $notifier->notifyJobFailed(
+            'SendTelegramNotification',
+            $this->notification->bot->name,
+            $exception->getMessage()
+        );
     }
 }

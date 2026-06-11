@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\Bot;
+use App\Services\DeveloperNotificationService;
 use App\Services\TelegramService;
 use Livewire\Component;
 
@@ -60,6 +61,18 @@ class CreateBotModal extends Component
                         'is_active' => true,
                         'webhook_status' => false,
                     ]);
+
+                    $notifier = new DeveloperNotificationService();
+                    $notifier->notifyDevelopment(
+                        'Bot Created',
+                        'New bot added to system',
+                        [
+                            'bot_name' => $bot->name,
+                            'bot_id' => $bot->id,
+                            'telegram_username' => $result['result']['username'] ?? 'N/A',
+                            'user_email' => auth()->user()->email,
+                        ]
+                    );
                 }
 
                 $this->botUuid = $bot->id;
@@ -129,9 +142,27 @@ class CreateBotModal extends Component
             if ($result['success']) {
                 $this->webhookMessage = 'Webhook set successfully';
                 $this->webhookMessageType = 'success';
+
+                $bot = Bot::find($this->botUuid);
+                $notifier = new DeveloperNotificationService();
+                $notifier->notifyDevelopment(
+                    'Webhook Set',
+                    'Telegram webhook configured successfully',
+                    [
+                        'bot_name' => $bot->name,
+                        'bot_id' => $bot->id,
+                        'webhook_url' => 'https://mycode.uz/api/webhook/tg/' . $this->botUuid,
+                    ]
+                );
             } else {
                 $this->webhookMessage = $result['message'] ?? 'Failed to set webhook';
                 $this->webhookMessageType = 'error';
+
+                $notifier = new DeveloperNotificationService();
+                $notifier->notifyWebhookError(
+                    'Unknown Bot',
+                    'Failed to set webhook: ' . ($result['message'] ?? 'Unknown error')
+                );
             }
         } catch (\Exception $e) {
             $this->webhookMessage = 'Error: ' . $e->getMessage();

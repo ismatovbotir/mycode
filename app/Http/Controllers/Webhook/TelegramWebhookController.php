@@ -6,6 +6,7 @@ use App\Models\Bot;
 use App\Models\BotClient;
 use App\Models\TgUser;
 use App\Services\BotSessionService;
+use App\Services\DeveloperNotificationService;
 use App\Services\TelegramService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -17,6 +18,7 @@ class TelegramWebhookController
     public function __construct(
         private TelegramService $telegramService,
         private BotSessionService $sessionService,
+        private DeveloperNotificationService $notifier = new DeveloperNotificationService(),
     ) {}
 
     public function healthCheck(Bot $bot): JsonResponse
@@ -140,6 +142,14 @@ class TelegramWebhookController
                 'approved' => $approved,
                 'approved_at' => $approved ? now() : null,
             ]
+        );
+
+        $this->notifier->notifyUserRegistered(
+            $bot->name,
+            $session['first_name'] ?? $tgUser->first_name ?? 'Unknown',
+            $session['last_name'] ?? $tgUser->last_name ?? 'Unknown',
+            $phone,
+            $session['lang'] ?? 'uz'
         );
 
         $lang = $session['lang'];

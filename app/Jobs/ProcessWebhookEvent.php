@@ -6,6 +6,7 @@ use App\Models\Bot;
 use App\Models\BotClient;
 use App\Models\Notification;
 use App\Models\WebhookEvent;
+use App\Services\DeveloperNotificationService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -32,10 +33,13 @@ class ProcessWebhookEvent implements ShouldQueue
 
         if (!$template) {
             $this->event->update(['status' => 'failed']);
+            $notifier = new DeveloperNotificationService();
+            $notifier->notifyWebhookError($bot->name, "No template found for event type: $eventType");
             return;
         }
 
         $customers = $payload['customers'] ?? [];
+        $notificationCount = 0;
 
         foreach ($customers as $customer) {
             $mySkladId = $customer['id'] ?? null;
@@ -67,9 +71,19 @@ class ProcessWebhookEvent implements ShouldQueue
             ]);
 
             SendTelegramNotification::dispatch($notification)->onQueue('telegram');
+            $notificationCount++;
         }
 
         $this->event->update(['status' => 'sent']);
+
+        if ($notificationCount > 0) {
+            $notifier = new DeveloperNotificationService();
+            $notifier->notifyWebhookReceived($bot->name, $eventType, [
+                'customers_count' => count($customers),
+                'notifications_queued' => $notificationCount,
+                'payload_summary' => substr(json_encode($payload), 0, 200),
+            ]);
+        }
     }
 
     private function interpolateMessage(string $template, array $payload): string

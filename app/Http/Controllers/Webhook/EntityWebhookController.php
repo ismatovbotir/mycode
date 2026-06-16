@@ -39,6 +39,7 @@ class EntityWebhookController
                 'event_type' => $action,
                 'entity_type' => $entityType,
                 'document_url' => $payload['events'][0]['meta']['href'] ?? null,
+                'document_id' => $payload['events'][0]['id'] ?? null,
                 'payload' => $payload,
                 'status' => 'received',
             ]);

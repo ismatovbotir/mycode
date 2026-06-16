@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Webhook;
 
 use App\Models\MoySkladWebhook;
 use App\Models\UserEntity;
+use App\Services\DeveloperNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
@@ -21,6 +22,7 @@ class EntityWebhookController
         $payload = $request->all();
         $action = $request->input('action', 'unknown');
         $entityType = $user_entity->entity->type ?? 'unknown';
+        $notifier = new DeveloperNotificationService();
 
         try {
             Log::channel('webhook')->info('━━ MoySkład Entity Webhook Received ━━', [
@@ -49,6 +51,17 @@ class EntityWebhookController
                 'webhook_id' => $webhookId,
             ]);
 
+            // Send notification - webhook received
+            $notifier->notifyWebhookReceived(
+                $user_entity->bot->name,
+                "{$entityType}:{$action}",
+                [
+                    'webhook_id' => $webhookId,
+                    'document_id' => $payload['id'] ?? null,
+                    'document_url' => $payload['meta']['href'] ?? null,
+                ]
+            );
+
             // Mark as processing
             $webhook->markProcessing();
 
@@ -70,18 +83,37 @@ class EntityWebhookController
                 'status' => 'processed',
             ]);
 
+            // Send notification - webhook processed successfully
+            $notifier->notifyDevelopment(
+                'MoySkład Webhook ✅',
+                "{$user_entity->bot->name} - {$entityType} webhook processed",
+                [
+                    'webhook_id' => $webhookId,
+                    'action' => $action,
+                    'record_id' => $webhook->id,
+                ]
+            );
+
             return response()->json(['success' => true], 200);
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Http::get('https://api.telegram.org/bot' . env('TELEGRAM_BOT_TOKEN') . '/sendMessage', [
-                'chat_id' => env('TELEGRAM_ADMIN_CHAT_ID'),
-                'text' => "❌ Error processing MoySkład webhook:\n" . $e->getMessage(),
-            ]);
             Log::channel('webhook')->error('❌ MoySkład Entity Webhook Error', [
                 'webhook_id' => $webhookId,
                 'user_entity_id' => $user_entity->id,
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
+
+            // Send notification - webhook failed
+            $notifier->notifyWebhookError(
+                $user_entity->bot->name,
+                "MoySkład webhook failed: " . $e->getMessage(),
+                [
+                    'webhook_id' => $webhookId,
+                    'entity_type' => $entityType,
+                    'action' => $action,
+                    'user_entity_id' => $user_entity->id,
+                ]
+            );
 
             // Mark webhook as failed if it was created
             if (isset($webhook)) {

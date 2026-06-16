@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['user_id', 'entity_id', 'action', 'ms_id', 'messages'])]
+#[Fillable(['user_id', 'bot_id', 'entity_id', 'action', 'ms_id', 'messages'])]
 class UserEntity extends Model
 {
     use HasUuids;
@@ -25,6 +25,11 @@ class UserEntity extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function bot(): BelongsTo
+    {
+        return $this->belongsTo(Bot::class);
     }
 
     public function entity(): BelongsTo

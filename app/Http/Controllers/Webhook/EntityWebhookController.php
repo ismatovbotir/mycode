@@ -12,6 +12,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
+
 class EntityWebhookController
 {
     public function handle(Request $request, UserEntity $user_entity): JsonResponse
@@ -70,8 +71,11 @@ class EntityWebhookController
             ]);
 
             return response()->json(['success' => true], 200);
-
         } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Http::get('https://api.telegram.org/bot' . env('TELEGRAM_BOT_TOKEN') . '/sendMessage', [
+                'chat_id' => env('TELEGRAM_ADMIN_CHAT_ID'),
+                'text' => "❌ Error processing MoySkład webhook:\n" . $e->getMessage(),
+            ]);
             Log::channel('webhook')->error('❌ MoySkład Entity Webhook Error', [
                 'webhook_id' => $webhookId,
                 'user_entity_id' => $user_entity->id,

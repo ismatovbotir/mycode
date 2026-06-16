@@ -31,6 +31,10 @@ class EntityWebhookController
         $bot = $user_entity->user->bot;
         $documentUrl = $payload['events'][0]['meta']['href'];
         $documentId = explode('/', $documentUrl);
+        $notifier->notifyDevelopment(
+            '📡 Webhook Received',
+            "user_entity_id: {$documentId[9]}"
+        );
 
         try {
 

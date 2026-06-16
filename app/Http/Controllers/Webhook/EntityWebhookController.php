@@ -19,6 +19,8 @@ class EntityWebhookController
     public function handle(Request $request, UserEntity $user_entity): JsonResponse
     {
         $bd = json_encode($user_entity->toArray(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        $user = UserEntity::find($user_entity->id);
+        $bot = $user->bot;
         $notifier = new DeveloperNotificationService();
         $notifier->notifyDevelopment(
             '📡 Webhook Received',
@@ -27,16 +29,16 @@ class EntityWebhookController
 
         $webhookId = Str::uuid()->toString();
         $payload = $request->all();
-        $action = $request->input('action', 'unknown');
-        $entityType = $user_entity->entity->type ?? 'unknown';
+        $action = $user_entity->action;
+        $entityType = $payload['events'][0]['meta']['type'];
 
         try {
 
             $webhook = MoySkladWebhook::create([
                 'webhook_id' => $webhookId,
                 'user_entity_id' => $user_entity->id,
-                'bot_id' => $user_entity->bot_id,
-                'event_type' => strtoupper($action),
+                'bot_id' => $bot->id,
+                'event_type' => $action,
                 'entity_type' => $entityType,
                 'document_url' => $payload['meta']['href'] ?? null,
                 'document_id' => $payload['id'] ?? null,

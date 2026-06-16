@@ -21,7 +21,7 @@ class EntityWebhookController
         $notifier = new DeveloperNotificationService();
         $notifier->notifyDevelopment(
             '📡 Webhook Received',
-            "body: {$request->all()}"
+            "body: {json_encode($request->all())}"
         );
 
         $webhookId = Str::uuid()->toString();

@@ -10,7 +10,6 @@ use App\Models\UserEntity;
 use App\Services\DeveloperNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 
@@ -18,13 +17,10 @@ class EntityWebhookController
 {
     public function handle(Request $request, UserEntity $user_entity): JsonResponse
     {
-        $bd = json_encode($user_entity->toArray(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-        $user = UserEntity::find($user_entity->id);
-        $bot = $user->bot;
         $notifier = new DeveloperNotificationService();
         $notifier->notifyDevelopment(
             '📡 Webhook Received',
-            "body: {$bd}"
+            "user_entity_id: {$user_entity->id}"
         );
 
         $webhookId = Str::uuid()->toString();
@@ -37,11 +33,10 @@ class EntityWebhookController
             $webhook = MoySkladWebhook::create([
                 'webhook_id' => $webhookId,
                 'user_entity_id' => $user_entity->id,
-                'bot_id' => $bot->id,
+                'bot_id' => $user_entity->bot_id,
                 'event_type' => $action,
                 'entity_type' => $entityType,
-                'document_url' => $payload['meta']['href'] ?? null,
-                'document_id' => $payload['id'] ?? null,
+                'document_url' => $payload['events'][0]['meta']['href'] ?? null,
                 'payload' => $payload,
                 'status' => 'received',
             ]);
@@ -78,7 +73,7 @@ class EntityWebhookController
             // Send notification - webhook failed
             $notifier->notifyDevelopment(
                 '❌ Webhook Failed',
-                "user_entity_id: {$e->getMessage()}"
+                "user_entity_id: {$user_entity->id}"
             );
 
 

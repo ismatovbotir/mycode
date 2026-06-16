@@ -29,6 +29,8 @@ class EntityWebhookController
         $entityType = $payload['events'][0]['meta']['type'];
 
         $bot = $user_entity->user->bot;
+        $documentUrl = $payload['events'][0]['meta']['href'] ?? null;
+        $documentId = $documentUrl ? basename($documentUrl) : null;
 
         try {
 
@@ -38,8 +40,8 @@ class EntityWebhookController
                 'bot_id' => $bot->id,
                 'event_type' => $action,
                 'entity_type' => $entityType,
-                'document_url' => $payload['events'][0]['meta']['href'] ?? null,
-                'document_id' => $payload['events'][0]['id'] ?? null,
+                'document_url' => $documentUrl,
+                'document_id' => $documentId,
                 'payload' => $payload,
                 'status' => 'received',
             ]);

@@ -28,7 +28,7 @@ class EntityWebhookController
         $action = $user_entity->action;
         $entityType = $payload['events'][0]['meta']['type'];
 
-        $bot = $user_entity->user->bots->first();
+        $bot = $user_entity->user->bot;
 
         try {
 

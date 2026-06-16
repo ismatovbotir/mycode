@@ -30,7 +30,7 @@ class EntityWebhookController
 
         $bot = $user_entity->user->bot;
         $documentUrl = $payload['events'][0]['meta']['href'];
-        $documentId = $documentUrl ? basename($documentUrl);
+        $documentId = explode('/', $documentUrl);
 
         try {
 
@@ -41,7 +41,7 @@ class EntityWebhookController
                 'event_type' => $action,
                 'entity_type' => $entityType,
                 'document_url' => $documentUrl,
-                'document_id' => $documentId,
+                'document_id' => $documentId[9],
                 'payload' => $payload,
                 'status' => 'received',
             ]);

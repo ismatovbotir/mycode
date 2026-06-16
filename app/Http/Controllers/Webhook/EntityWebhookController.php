@@ -94,7 +94,7 @@ class EntityWebhookController
             // Send notification - webhook failed
             $notifier->notifyDevelopment(
                 '❌ Webhook Failed',
-                "user_entity_id: {$user_entity->id}"
+                "user_entity_id: {$e->getMessage()}"
             );
 
 

@@ -18,10 +18,11 @@ class EntityWebhookController
 {
     public function handle(Request $request, UserEntity $user_entity): JsonResponse
     {
+        $bd = json_encode($request->all());
         $notifier = new DeveloperNotificationService();
         $notifier->notifyDevelopment(
             '📡 Webhook Received',
-            "body: {json_encode($request->all())}"
+            "body: {$bd}"
         );
 
         $webhookId = Str::uuid()->toString();

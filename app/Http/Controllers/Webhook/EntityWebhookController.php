@@ -18,7 +18,7 @@ class EntityWebhookController
 {
     public function handle(Request $request, UserEntity $user_entity): JsonResponse
     {
-        $bd = json_encode($request->all());
+        $bd = json_encode($user_entity->toArray(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
         $notifier = new DeveloperNotificationService();
         $notifier->notifyDevelopment(
             '📡 Webhook Received',

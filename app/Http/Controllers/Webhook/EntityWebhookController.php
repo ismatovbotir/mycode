@@ -89,12 +89,7 @@ class EntityWebhookController
 
             return response()->json(['success' => true], 200);
         } catch (\Exception $e) {
-            Log::channel('webhook')->error('❌ MoySkład Entity Webhook Error', [
-                'webhook_id' => $webhookId,
-                'user_entity_id' => $user_entity->id,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-            ]);
+
 
             // Send notification - webhook failed
             $notifier->notifyDevelopment(
@@ -102,10 +97,7 @@ class EntityWebhookController
                 "user_entity_id: {$user_entity->id}"
             );
 
-            // Mark webhook as failed if it was created
-            if (isset($webhook)) {
-                $webhook->markFailed($e->getMessage());
-            }
+
 
             return response()->json(['error' => $e->getMessage()], 400);
         }

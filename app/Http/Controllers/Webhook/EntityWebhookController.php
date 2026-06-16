@@ -28,12 +28,15 @@ class EntityWebhookController
         $action = $user_entity->action;
         $entityType = $payload['events'][0]['meta']['type'];
 
+        $company = $user_entity->user->company;
+        $bot = $company->bots->first();
+
         try {
 
             $webhook = MoySkladWebhook::create([
                 'webhook_id' => $webhookId,
                 'user_entity_id' => $user_entity->id,
-                'bot_id' => $user_entity->bot_id,
+                'bot_id' => $bot->id,
                 'event_type' => $action,
                 'entity_type' => $entityType,
                 'document_url' => $payload['events'][0]['meta']['href'] ?? null,

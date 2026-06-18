@@ -14,15 +14,19 @@ class MoySkladDocumentService
     public function fetchDocument(string $documentUrl): ?array
     {
         try {
+            // Add expand parameters to fetch agent and positions details
+            $separator = str_contains($documentUrl, '?') ? '&' : '?';
+            $urlWithExpand = $documentUrl . $separator . 'expand=agent,positions.assortment';
+
             $response = Http::withHeaders([
                 'Authorization' => "Bearer {$this->token}",
                 'Content-Type' => 'application/json',
                 'Accept-Encoding' => 'gzip',
-            ])->timeout(20)->get($documentUrl);
+            ])->timeout(20)->get($urlWithExpand);
 
             if (!$response->successful()) {
                 Log::warning('Failed to fetch МойСклад document', [
-                    'url' => $documentUrl,
+                    'url' => $urlWithExpand,
                     'status' => $response->status(),
                 ]);
                 return null;

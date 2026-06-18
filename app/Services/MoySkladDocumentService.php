@@ -55,7 +55,7 @@ class MoySkladDocumentService
         return null;
     }
 
-    public function formatDocumentForTelegram(array $document, ?array $messageTemplate = null): ?string
+    public function formatDocumentForTelegram(array $document, ?string $entityType = null, ?string $lang = 'uz'): ?string
     {
         $documentNumber = $document['name'] ?? 'N/A';
         $documentDate = $document['moment'] ?? 'N/A';
@@ -64,13 +64,31 @@ class MoySkladDocumentService
 
         $totalFormatted = number_format($total / 100, 2, '.', ' ');
 
-        $message = "📋 <b>Document: {$documentNumber}</b>\n";
-        $message .= "📅 Date: {$documentDate}\n";
-        $message .= "👤 Customer: {$counterpartyName}\n";
-        $message .= "💰 Total: {$totalFormatted}\n\n";
+        // Translate document type
+        $docTypeLabels = [
+            'uz' => ['demand' => 'Chiqib ketish', 'supply' => 'Qabul'],
+            'en' => ['demand' => 'Demand', 'supply' => 'Supply'],
+            'ru' => ['demand' => 'Спрос', 'supply' => 'Приход'],
+        ];
+
+        $docType = $docTypeLabels[$lang][$entityType] ?? $entityType ?? 'Document';
+
+        // Translate labels
+        $labels = [
+            'uz' => ['document' => 'Hujjat', 'date' => 'Sana', 'customer' => 'Xaridor', 'total' => 'Jami', 'items' => 'Maxsulotlar'],
+            'en' => ['document' => 'Document', 'date' => 'Date', 'customer' => 'Customer', 'total' => 'Total', 'items' => 'Items'],
+            'ru' => ['document' => 'Документ', 'date' => 'Дата', 'customer' => 'Клиент', 'total' => 'Итого', 'items' => 'Товары'],
+        ];
+
+        $l = $labels[$lang] ?? $labels['uz'];
+
+        $message = "📋 <b>{$l['document']}: {$documentNumber}</b>\n";
+        $message .= "📅 {$l['date']}: {$documentDate}\n";
+        $message .= "👤 {$l['customer']}: {$counterpartyName}\n";
+        $message .= "💰 {$l['total']}: {$totalFormatted}\n\n";
 
         if (isset($document['lines']) && is_array($document['lines'])) {
-            $message .= "<b>Items:</b>\n";
+            $message .= "<b>{$l['items']}:</b>\n";
             foreach ($document['lines'] as $line) {
                 $itemName = $line['name'] ?? 'Item';
                 $quantity = $line['quantity'] ?? 0;

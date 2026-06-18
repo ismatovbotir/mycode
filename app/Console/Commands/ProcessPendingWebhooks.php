@@ -143,7 +143,8 @@ class ProcessPendingWebhooks extends Command
                     }
 
                     // Format document for Telegram
-                    $message = $this->formatDocumentMessage($document, $webhook->entity_type);
+                    $botClientLang = $botClient->tgUser->lang ?? 'uz';
+                    $message = $documentService->formatDocumentForTelegram($document, $webhook->entity_type, $botClientLang);
                     if (!$message) {
                         throw new \Exception('Failed to format document for Telegram');
                     }
@@ -215,37 +216,4 @@ class ProcessPendingWebhooks extends Command
         }
     }
 
-    private function formatDocumentMessage(array $document, string $entityType): string
-    {
-        $documentName = $document['name'] ?? 'Unknown';
-        $agentName = $document['agent']['name'] ?? 'Unknown';
-        $sum = ($document['sum'] ?? 0) / 100; // Convert from coins to currency
-        $moment = $document['moment'] ?? 'N/A';
-
-        // Format header based on entity type
-        $emoji = match ($entityType) {
-            'demand' => '📦',
-            'supply' => '📥',
-            default => '📄',
-        };
-
-        $message = "{$emoji} {$entityType} #{$documentName}\n\n";
-        $message .= "👤 {$agentName}\n";
-        $message .= "💰 {$sum} UZS\n";
-        $message .= "📅 {$moment}\n\n";
-
-        // Add items if available
-        if (isset($document['positions']['rows']) && is_array($document['positions']['rows'])) {
-            $message .= "📋 Items:\n";
-            foreach ($document['positions']['rows'] as $position) {
-                $name = $position['assortment']['name'] ?? 'Product';
-                $quantity = $position['quantity'] ?? 0;
-                $price = ($position['price'] ?? 0) / 100; // Convert from coins
-
-                $message .= "  • {$name}: {$quantity} × {$price} UZS\n";
-            }
-        }
-
-        return $message;
-    }
 }

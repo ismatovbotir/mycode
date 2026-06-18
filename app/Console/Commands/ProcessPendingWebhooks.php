@@ -17,17 +17,25 @@ class ProcessPendingWebhooks extends Command
     protected $signature = 'webhooks:process {--limit=50 : Maximum webhooks to process}';
     protected $description = 'Process pending MoySkład webhooks and send Telegram notifications';
 
-    public function handle(
-        MoySkladDocumentService $documentService,
-        PhoneMatchingService $phoneService,
-        TelegramService $telegramService,
-        DeveloperNotificationService $notifier
-    ): int {
+    public function handle(): int
+    {
         $limit = (int) $this->option('limit');
 
         $this->info("Processing pending webhooks (max: {$limit})...");
 
         try {
+            // Get MoySkład token from environment or config
+            $token = config('services.moysklad.token') ?? env('MOYSKLAD_TOKEN', '');
+
+            if (!$token) {
+                $this->error('MoySkład token not configured');
+                return 1;
+            }
+
+            $documentService = new MoySkladDocumentService($token);
+            $phoneService = new PhoneMatchingService();
+            $telegramService = new TelegramService('');
+            $notifier = new DeveloperNotificationService();
             $webhooks = MoySkladWebhook::where('status', 'received')
                 ->orderBy('created_at', 'asc')
                 ->limit($limit)

@@ -61,12 +61,20 @@ class ProcessPendingWebhooks extends Command
                     // Extract counterparty phone
                     $phone = $documentService->extractCounterpartyPhone($document);
                     if (!$phone) {
-                        $webhook->update([
-                            'status' => 'failed',
-                            'error_message' => 'No phone found in document',
+                        // Keep status as 'processing' and notify developer
+                        Log::channel('webhook')->warning('No phone found in document', [
+                            'webhook_id' => $webhook->id,
+                            'entity_type' => $webhook->entity_type,
+                            'document_id' => $webhook->document_id,
+                            'document_url' => $webhook->document_url,
                         ]);
-                        $failed++;
-                        $this->line("  ✗ No phone found");
+
+                        $notifier->notifyDevelopment(
+                            '⚠️ Missing Phone',
+                            "webhook_id: {$webhook->id}\nentity_type: {$webhook->entity_type}\nDocument may need manual review"
+                        );
+
+                        $this->line("  ⚠ No phone found - keeping as processing");
                         continue;
                     }
 

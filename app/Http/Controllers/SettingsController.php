@@ -7,7 +7,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Integration;
 use App\Models\IntegrationField;
+use Bacon\BaconQrCode\Renderer\Image\SvgImageBackEnd;
+use Bacon\BaconQrCode\Renderer\ImageRenderer;
+use Bacon\BaconQrCode\Writer;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class SettingsController extends Controller
@@ -66,5 +71,64 @@ class SettingsController extends Controller
         }
 
         return redirect()->route('settings.index')->with('success', 'МойСклад credentials saved successfully!');
+    }
+
+    public function generateTelegramLinkQrCode()
+    {
+        $user = auth()->user();
+
+        // If already linked, don't generate new QR code
+        if ($user->tg_chat_id) {
+            return response()->json([
+                'already_linked' => true,
+                'tg_chat_id' => $user->tg_chat_id,
+            ]);
+        }
+
+        // Generate unique link token
+        $linkToken = Str::random(32);
+
+        // Store token in cache (expires in 10 minutes)
+        Cache::put("telegram_link_token:{$linkToken}", [
+            'user_id' => $user->id,
+            'bot_id' => $user->bot->id,
+            'created_at' => now(),
+        ], now()->addMinutes(10));
+
+        // Generate bot link with token
+        $botUsername = $user->bot->tg_username;
+        $deepLink = "https://t.me/{$botUsername}?start=link_{$linkToken}";
+
+        // Generate QR code SVG
+        $renderer = new ImageRenderer(
+            new SvgImageBackEnd(),
+            new \Bacon\BaconQrCode\Renderer\RendererStyle\RendererStyle(300)
+        );
+        $writer = new Writer($renderer);
+        $qrCodeSvg = $writer->writeString($deepLink);
+
+        return response()->json([
+            'already_linked' => false,
+            'qr_code' => $qrCodeSvg,
+            'link_token' => $linkToken,
+            'expires_in' => 600, // 10 minutes
+            'deep_link' => $deepLink,
+        ]);
+    }
+
+    public function checkLinkStatus(string $linkToken)
+    {
+        $user = auth()->user();
+        $isLinked = Cache::get("telegram_link_status:{$linkToken}", false);
+
+        // Also check if user was linked directly
+        if (!$isLinked && $user->tg_chat_id) {
+            $isLinked = true;
+        }
+
+        return response()->json([
+            'linked' => $isLinked,
+            'tg_chat_id' => $user->tg_chat_id,
+        ]);
     }
 }

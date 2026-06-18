@@ -121,7 +121,12 @@ class TelegramWebhookController
         $contact = $message['contact'] ?? null;
 
         try {
-            if ($text === '/start' || !$session) {
+            // Check if this is a link account request
+            if ($text && str_starts_with($text, '/start link_')) {
+                $linkToken = str_replace('/start link_', '', $text);
+                Log::info('Handling account link request', ['chat_id' => $chatId, 'link_token' => $linkToken]);
+                $this->handleTelegramLink($bot, $token, $chatId, $tgUser, $linkToken);
+            } elseif ($text === '/start' || !$session) {
                 Log::info('Handling /start', ['chat_id' => $chatId]);
                 $this->handleStart($bot, $token, $chatId, $tgUser);
             } elseif ($session['state'] === 'lang') {
@@ -473,5 +478,85 @@ class TelegramWebhookController
             '💬 Message Received',
             "bot_id: {$bot->id}\ntg_user_id: {$tgUser->id}\ntype: {$messageType}"
         );
+    }
+
+    private function handleTelegramLink(Bot $bot, string $token, int $chatId, TgUser $tgUser, string $linkToken): void
+    {
+        Log::info('Processing Telegram account link', [
+            'bot_id' => $bot->id,
+            'tg_user_id' => $tgUser->id,
+            'chat_id' => $chatId,
+        ]);
+
+        // Get stored link data from cache
+        $linkData = \Illuminate\Support\Facades\Cache::get("telegram_link_token:{$linkToken}");
+
+        if (!$linkData) {
+            $this->telegramService->sendMessage(
+                $token,
+                $chatId,
+                "❌ Link expired or invalid.\n\nPlease generate a new QR code in your dashboard."
+            );
+            return;
+        }
+
+        // Verify bot matches
+        if ($linkData['bot_id'] !== $bot->id) {
+            $this->telegramService->sendMessage(
+                $token,
+                $chatId,
+                "❌ This QR code belongs to a different bot."
+            );
+            return;
+        }
+
+        try {
+            // Link the user account
+            $user = \App\Models\User::find($linkData['user_id']);
+
+            if (!$user) {
+                $this->telegramService->sendMessage($token, $chatId, "❌ User account not found.");
+                return;
+            }
+
+            // Update user with Telegram info
+            $user->update([
+                'tg_chat_id' => $chatId,
+                'tg_linked_at' => now(),
+            ]);
+
+            // Mark as linked in cache
+            \Illuminate\Support\Facades\Cache::put("telegram_link_status:{$linkToken}", true, now()->addMinutes(10));
+
+            Log::info('User Telegram account linked successfully', [
+                'user_id' => $user->id,
+                'tg_chat_id' => $chatId,
+                'bot_id' => $bot->id,
+            ]);
+
+            // Send confirmation message
+            $this->telegramService->sendMessage(
+                $token,
+                $chatId,
+                "✅ Account linked successfully!\n\n" .
+                "You'll now receive notifications about your bot here.\n\n" .
+                "🔗 Dashboard: " . config('app.url')
+            );
+
+            // Clear any existing session
+            $this->sessionService->forget($bot->id, $chatId);
+
+        } catch (\Exception $e) {
+            Log::error('Failed to link Telegram account', [
+                'link_token' => $linkToken,
+                'error' => $e->getMessage(),
+            ]);
+
+            $this->telegramService->sendMessage(
+                $token,
+                $chatId,
+                "❌ Failed to link account. Please try again or contact support."
+            );
+        }
     }
 }

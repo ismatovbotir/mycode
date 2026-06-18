@@ -64,6 +64,10 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/settings', [\App\Http\Controllers\SettingsController::class, 'index'])->name('settings.index');
     Route::put('/settings', [\App\Http\Controllers\SettingsController::class, 'update'])->name('settings.update');
+
+    // Telegram Link Routes
+    Route::get('/settings/telegram/generate-qr', [\App\Http\Controllers\SettingsController::class, 'generateTelegramLinkQrCode'])->name('settings.telegram.generate-qr');
+    Route::get('/settings/telegram/check-link/{linkToken}', [\App\Http\Controllers\SettingsController::class, 'checkLinkStatus'])->name('settings.telegram.check-link');
 });
 
 // Super Admin Dashboard Routes

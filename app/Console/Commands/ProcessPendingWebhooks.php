@@ -95,9 +95,32 @@ class ProcessPendingWebhooks extends Command
                     // Find matching bot client
                     $botClient = $phoneService->findBotClientByPhone($phone, $webhook->bot_id);
                     if (!$botClient) {
-                        $webhook->update(['status' => 'processed', 'matched_client_id' => null]);
-                        $processed++;
-                        $this->line("  ⚠ No matching client");
+                        // Keep status as 'processing' and notify developer
+                        Log::channel('webhook')->warning('No matching bot client found', [
+                            'webhook_id' => $webhook->id,
+                            'entity_type' => $webhook->entity_type,
+                            'phone' => $phone,
+                            'bot_id' => $webhook->bot_id,
+                        ]);
+
+                        // Format message for Telegram
+                        $agentName = $document['agent']['name'] ?? 'Unknown';
+                        $documentName = $document['name'] ?? $webhook->document_id;
+
+                        $message = "❌ No Matching Client\n\n";
+                        $message .= "Document: {$documentName}\n";
+                        $message .= "Entity Type: {$webhook->entity_type}\n";
+                        $message .= "Counterparty: {$agentName}\n";
+                        $message .= "Phone: {$phone}\n\n";
+                        $message .= "❗ Client with this phone not found in bot\n";
+                        $message .= "Webhook ID: {$webhook->id}";
+
+                        $notifier->notifyDevelopment(
+                            '❌ No Matching Client',
+                            $message
+                        );
+
+                        $this->line("  ⚠ No matching client - keeping as processing");
                         continue;
                     }
 
@@ -132,10 +155,18 @@ class ProcessPendingWebhooks extends Command
                     Log::channel('webhook')->error('Webhook processing failed', [
                         'webhook_id' => $webhook->id,
                         'error' => $e->getMessage(),
+                        'trace' => $e->getTraceAsString(),
                     ]);
 
+                    // Notify developer about error
+                    $notifier->notifyDevelopment(
+                        '❌ Webhook Error',
+                        "webhook_id: {$webhook->id}\nerror: {$e->getMessage()}"
+                    );
+
+                    // Keep as processing so it can be retried
                     $webhook->update([
-                        'status' => 'failed',
+                        'status' => 'processing',
                         'error_message' => $e->getMessage(),
                     ]);
 

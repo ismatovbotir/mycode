@@ -55,15 +55,26 @@ class EntityWebhookController
             $webhook->markProcessing();
 
             // Process webhook based on entity type
-            match ($entityType) {
-                'demand' => $this->processDemand($webhook, $documentUrl, $documentId),
-                'supply' => $this->processSupply($webhook, $documentUrl, $documentId),
-                'invoice' => $this->processInvoice($webhook, $documentUrl, $documentId),
-                'paymentin' => $this->processPaymentIn($webhook, $documentUrl, $documentId),
-                'paymentout' => $this->processPaymentOut($webhook, $documentUrl, $documentId),
-                'salesreturn' => $this->processSalesReturn($webhook, $documentUrl, $documentId),
-                default => null,
-            };
+            switch ($entityType) {
+                case 'demand':
+                    $this->processDemand($webhook, $documentUrl, $documentId);
+                    break;
+                case 'supply':
+                    $this->processSupply($webhook, $documentUrl, $documentId);
+                    break;
+                case 'invoice':
+                    $this->processInvoice($webhook, $documentUrl, $documentId);
+                    break;
+                case 'paymentin':
+                    $this->processPaymentIn($webhook, $documentUrl, $documentId);
+                    break;
+                case 'paymentout':
+                    $this->processPaymentOut($webhook, $documentUrl, $documentId);
+                    break;
+                case 'salesreturn':
+                    $this->processSalesReturn($webhook, $documentUrl, $documentId);
+                    break;
+            }
 
             $webhook->markProcessed();
 

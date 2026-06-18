@@ -30,11 +30,7 @@ class EntityWebhookController
 
         $bot = $user_entity->user->bot;
         $documentUrl = $payload['events'][0]['meta']['href'];
-       
-        $notifier->notifyDevelopment(
-            '📡 Webhook Received',
-            "user_entity_id: {$documentUrl}"
-        );
+        $documentId = basename($documentUrl);
 
         try {
 
@@ -45,7 +41,7 @@ class EntityWebhookController
                 'event_type' => $action,
                 'entity_type' => $entityType,
                 'document_url' => $documentUrl,
-                'document_id' => $documentUrl,
+                'document_id' => $documentId,
                 'payload' => $payload,
                 'status' => 'received',
             ]);
@@ -58,17 +54,18 @@ class EntityWebhookController
             // Mark as processing
             $webhook->markProcessing();
 
-            // Process the webhook event
-            // This could trigger notifications, data sync, etc.
+            // Process webhook based on entity type
+            match ($entityType) {
+                'demand' => $this->processDemand($webhook, $documentUrl, $documentId),
+                'supply' => $this->processSupply($webhook, $documentUrl, $documentId),
+                'invoice' => $this->processInvoice($webhook, $documentUrl, $documentId),
+                'paymentin' => $this->processPaymentIn($webhook, $documentUrl, $documentId),
+                'paymentout' => $this->processPaymentOut($webhook, $documentUrl, $documentId),
+                'salesreturn' => $this->processSalesReturn($webhook, $documentUrl, $documentId),
+                default => null,
+            };
 
-            // TODO: Add your webhook processing logic here
-            // - Fetch document from MoySkład
-            // - Extract counterparty phone
-            // - Find matching bot_client
-            // - Send notification
-
-            // Mark as processed
-            //$webhook->markProcessed();
+            $webhook->markProcessed();
 
 
 
@@ -89,5 +86,53 @@ class EntityWebhookController
 
             return response()->json(['error' => $e->getMessage()], 400);
         }
+    }
+
+    private function processDemand(MoySkladWebhook $webhook, string $documentUrl, string $documentId): void
+    {
+        // TODO: Fetch demand from MoySkład API
+        // TODO: Extract counterparty phone
+        // TODO: Find matching bot_client
+        // TODO: Send Telegram notification
+    }
+
+    private function processSupply(MoySkladWebhook $webhook, string $documentUrl, string $documentId): void
+    {
+        // TODO: Fetch supply from MoySkład API
+        // TODO: Extract counterparty phone
+        // TODO: Find matching bot_client
+        // TODO: Send Telegram notification
+    }
+
+    private function processInvoice(MoySkladWebhook $webhook, string $documentUrl, string $documentId): void
+    {
+        // TODO: Fetch invoice from MoySkład API
+        // TODO: Extract counterparty phone
+        // TODO: Find matching bot_client
+        // TODO: Send Telegram notification
+    }
+
+    private function processPaymentIn(MoySkladWebhook $webhook, string $documentUrl, string $documentId): void
+    {
+        // TODO: Fetch incoming payment from MoySkład API
+        // TODO: Extract counterparty phone
+        // TODO: Find matching bot_client
+        // TODO: Send Telegram notification
+    }
+
+    private function processPaymentOut(MoySkladWebhook $webhook, string $documentUrl, string $documentId): void
+    {
+        // TODO: Fetch outgoing payment from MoySkład API
+        // TODO: Extract counterparty phone
+        // TODO: Find matching bot_client
+        // TODO: Send Telegram notification
+    }
+
+    private function processSalesReturn(MoySkladWebhook $webhook, string $documentUrl, string $documentId): void
+    {
+        // TODO: Fetch sales return from MoySkład API
+        // TODO: Extract counterparty phone
+        // TODO: Find matching bot_client
+        // TODO: Send Telegram notification
     }
 }

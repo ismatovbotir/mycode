@@ -61,7 +61,7 @@ class ProcessPendingWebhooks extends Command
                     // Extract counterparty phone
                     $phone = $documentService->extractCounterpartyPhone($document);
                     if (!$phone) {
-                        // Keep status as 'processing' and notify developer
+                        // Keep status as 'processing' and notify developer with document details
                         Log::channel('webhook')->warning('No phone found in document', [
                             'webhook_id' => $webhook->id,
                             'entity_type' => $webhook->entity_type,
@@ -69,9 +69,23 @@ class ProcessPendingWebhooks extends Command
                             'document_url' => $webhook->document_url,
                         ]);
 
+                        // Format document details for Telegram
+                        $agentName = $document['agent']['name'] ?? 'Unknown';
+                        $documentName = $document['name'] ?? $webhook->document_id;
+                        $sum = $document['sum'] ?? 0;
+                        $moment = $document['moment'] ?? 'N/A';
+
+                        $message = "⚠️ Missing Phone - {$webhook->entity_type}\n\n";
+                        $message .= "Document: {$documentName}\n";
+                        $message .= "Counterparty: {$agentName}\n";
+                        $message .= "Amount: {$sum}\n";
+                        $message .= "Date: {$moment}\n\n";
+                        $message .= "❗ Please add phone number to counterparty in MoySkład\n";
+                        $message .= "Webhook ID: {$webhook->id}";
+
                         $notifier->notifyDevelopment(
                             '⚠️ Missing Phone',
-                            "webhook_id: {$webhook->id}\nentity_type: {$webhook->entity_type}\nDocument may need manual review"
+                            $message
                         );
 
                         $this->line("  ⚠ No phone found - keeping as processing");

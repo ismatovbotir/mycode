@@ -36,6 +36,7 @@ class EntityWebhookController
 
             $webhook = MoySkladWebhook::create([
                 'webhook_id' => $webhookId,
+                'user_id' => $user_entity->user_id,
                 'user_entity_id' => $user_entity->id,
                 'bot_id' => $bot->id,
                 'event_type' => $action,

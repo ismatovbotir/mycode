@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['webhook_id', 'user_entity_id', 'bot_id', 'event_type', 'entity_type', 'document_url', 'document_id', 'payload', 'status', 'matched_client_id', 'error_message'])]
+#[Fillable(['webhook_id', 'user_id', 'user_entity_id', 'bot_id', 'event_type', 'entity_type', 'document_url', 'document_id', 'payload', 'status', 'matched_client_id', 'error_message'])]
 class MoySkladWebhook extends Model
 {
     use HasFactory;
@@ -19,6 +19,11 @@ class MoySkladWebhook extends Model
     protected $casts = [
         'payload' => 'array',
     ];
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id', 'id');
+    }
 
     public function userEntity(): BelongsTo
     {

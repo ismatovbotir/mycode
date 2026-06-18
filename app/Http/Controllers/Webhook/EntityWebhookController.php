@@ -7,7 +7,6 @@ namespace App\Http\Controllers\Webhook;
 
 use App\Models\MoySkladWebhook;
 use App\Models\UserEntity;
-use App\Jobs\ProcessMoySkladWebhook;
 use App\Services\DeveloperNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -51,13 +50,6 @@ class EntityWebhookController
                 '📡 Webhook Created',
                 "webhook_id: {$webhook->id}"
             );
-
-            // Mark as processing
-            $webhook->markProcessing();
-
-            // Dispatch job to process webhook asynchronously
-            ProcessMoySkladWebhook::dispatch($webhook)
-                ->onQueue('default');
 
 
 

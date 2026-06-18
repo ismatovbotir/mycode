@@ -187,6 +187,50 @@ class DeveloperNotificationService
         $this->send($message);
     }
 
+    public function notifyUserViaBotAsync(string $botToken, int $chatId, string $title, string $message): void
+    {
+        if (!$botToken || !$chatId) {
+            Log::warning('User notification skipped - bot token or chat_id missing');
+            return;
+        }
+
+        try {
+            $token = decrypt($botToken);
+            $fullMessage = "{$title}\n\n{$message}";
+
+            $url = $this->apiUrl . $token . '/sendMessage';
+            $payload = [
+                'chat_id' => $chatId,
+                'text' => $fullMessage,
+                'parse_mode' => 'HTML',
+            ];
+
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($payload));
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+
+            if ($httpCode !== 200) {
+                Log::warning('User notification failed', [
+                    'http_code' => $httpCode,
+                    'chat_id' => $chatId,
+                    'response' => $response,
+                ]);
+            }
+        } catch (\Exception $e) {
+            Log::error('Error sending user notification via bot', [
+                'chat_id' => $chatId,
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
     private function send(string $message): void
     {
         if (!$this->botToken || !$this->developerId) {

@@ -82,10 +82,15 @@ class ProcessPendingWebhooks extends Command
                         $message .= "❗ Please add phone number to counterparty in MoySkład\n";
                         $message .= "Webhook ID: {$webhook->id}";
 
-                        $notifier->notifyDevelopment(
-                            '⚠️ Missing Phone',
-                            $message
-                        );
+                        // Notify user via their bot if they linked Telegram
+                        if ($webhook->bot->user?->tg_chat_id) {
+                            $notifier->notifyUserViaBotAsync(
+                                $webhook->bot->tg_bot_token,
+                                $webhook->bot->user->tg_chat_id,
+                                '⚠️ Missing Phone',
+                                $message
+                            );
+                        }
 
                         $this->line("  ⚠ No phone found - keeping as processing");
                         continue;
@@ -114,10 +119,15 @@ class ProcessPendingWebhooks extends Command
                         $message .= "❗ Client with this phone not found in bot\n";
                         $message .= "Webhook ID: {$webhook->id}";
 
-                        $notifier->notifyDevelopment(
-                            '❌ No Matching Client',
-                            $message
-                        );
+                        // Notify user via their bot if they linked Telegram
+                        if ($webhook->bot->user?->tg_chat_id) {
+                            $notifier->notifyUserViaBotAsync(
+                                $webhook->bot->tg_bot_token,
+                                $webhook->bot->user->tg_chat_id,
+                                '❌ No Matching Client',
+                                $message
+                            );
+                        }
 
                         $this->line("  ⚠ No matching client - keeping as processing");
                         continue;
@@ -142,10 +152,15 @@ class ProcessPendingWebhooks extends Command
                         'matched_client_id' => $botClient->id,
                     ]);
 
-                    $notifier->notifyDevelopment(
-                        '✅ Webhook Processed',
-                        "webhook_id: {$webhook->id}"
-                    );
+                    // Notify user via their bot if they linked Telegram
+                    if ($webhook->bot->user?->tg_chat_id) {
+                        $notifier->notifyUserViaBotAsync(
+                            $webhook->bot->tg_bot_token,
+                            $webhook->bot->user->tg_chat_id,
+                            '✅ Webhook Processed',
+                            $message
+                        );
+                    }
 
                     $processed++;
                     $this->line("  ✓ Processed successfully");

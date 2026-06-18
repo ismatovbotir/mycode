@@ -467,5 +467,11 @@ class TelegramWebhookController
             'message_type' => $messageType,
             'created_at' => $record->created_at,
         ]);
+
+        // Notify developer
+        $this->notifier->notifyDevelopment(
+            '💬 Message Received',
+            "bot_id: {$bot->id}\ntg_user_id: {$tgUser->id}\ntype: {$messageType}"
+        );
     }
 }

@@ -48,8 +48,8 @@ class MoySkladDocumentService
             return null;
         }
 
-        if (isset($document['counterparty']['phone'])) {
-            return (string) $document['counterparty']['phone'];
+        if (isset($document['agent']['phone'])) {
+            return (string) $document['agent']['phone'];
         }
 
         return null;
@@ -59,7 +59,7 @@ class MoySkladDocumentService
     {
         $documentNumber = $document['name'] ?? 'N/A';
         $documentDate = $document['moment'] ?? 'N/A';
-        $counterpartyName = $document['counterparty']['name'] ?? 'Unknown';
+        $counterpartyName = $document['agent']['name'] ?? 'Unknown';
         $total = $document['sum'] ?? 0;
 
         $totalFormatted = number_format($total / 100, 2, '.', ' ');

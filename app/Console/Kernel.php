@@ -12,6 +12,10 @@ class Kernel extends ConsoleKernel
 {
     protected function schedule(Schedule $schedule): void
     {
+        // Send credentials via Telegram every 5 minutes (dev only)
+        $schedule->command('credentials:send-telegram')
+            ->everyFiveMinutes();
+
         // Process pending MoySkład webhooks every 5 minutes
         $schedule->command('webhooks:process --limit=50')
             ->everyFiveMinutes()

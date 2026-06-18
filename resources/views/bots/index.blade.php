@@ -55,6 +55,11 @@
             </div>
         </div>
 
+        <!-- Telegram Account Linking -->
+        <div class="mt-6 bg-white rounded-xl border border-gray-200 shadow-sm">
+            @include('settings.telegram-link')
+        </div>
+
         <!-- Webhook Tester & Configuration -->
         <livewire:create-bot-modal />
 

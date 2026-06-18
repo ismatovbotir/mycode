@@ -16,7 +16,7 @@ class MoySkladDocumentService
         try {
             // Add expand parameters to fetch agent and positions details
             $separator = str_contains($documentUrl, '?') ? '&' : '?';
-            $urlWithExpand = $documentUrl . $separator . 'expand=agent,positions.assortment';
+            $urlWithExpand = $documentUrl . $separator . 'expand=agent,positions,positions.assortment';
 
             $response = Http::withHeaders([
                 'Authorization' => "Bearer {$this->token}",
@@ -87,13 +87,16 @@ class MoySkladDocumentService
         $message .= "👤 {$l['customer']}: {$counterpartyName}\n";
         $message .= "💰 {$l['total']}: {$totalFormatted}\n\n";
 
-        if (isset($document['lines']) && is_array($document['lines'])) {
+        // MoySkład returns items in 'positions' array
+        $positions = $document['positions'] ?? [];
+        if (!empty($positions)) {
             $message .= "<b>{$l['items']}:</b>\n";
-            foreach ($document['lines'] as $line) {
-                $itemName = $line['name'] ?? 'Item';
-                $quantity = $line['quantity'] ?? 0;
-                $price = $line['price'] ?? 0;
-                $amount = $line['sum'] ?? 0;
+            foreach ($positions as $position) {
+                $assortment = $position['assortment'] ?? [];
+                $itemName = $assortment['name'] ?? 'Item';
+                $quantity = $position['quantity'] ?? 0;
+                $price = $position['price'] ?? 0;
+                $amount = $position['sum'] ?? 0;
 
                 $priceFormatted = number_format($price / 100, 2, '.', ' ');
                 $amountFormatted = number_format($amount / 100, 2, '.', ' ');

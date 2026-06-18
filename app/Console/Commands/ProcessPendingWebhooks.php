@@ -109,12 +109,12 @@ class ProcessPendingWebhooks extends Command
                     $botClient = $phoneService->findBotClientByPhone($phone, $webhook->bot_id);
                     if (!$botClient) {
                         // Keep status as 'processing' and notify developer
-                        Log::warning('No matching bot client found', [
-                            'webhook_id' => $webhook->id,
-                            'entity_type' => $webhook->entity_type,
-                            'phone' => $phone,
-                            'bot_id' => $webhook->bot_id,
-                        ]);
+                        // Log::warning('No matching bot client found', [
+                        //     'webhook_id' => $webhook->id,
+                        //     'entity_type' => $webhook->entity_type,
+                        //     'phone' => $phone,
+                        //     'bot_id' => $webhook->bot_id,
+                        // ]);
 
                         // Format message for Telegram
                         $agentName = $document['agent']['name'] ?? 'Unknown';

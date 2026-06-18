@@ -56,7 +56,7 @@ class MoyskladController
             'webhook_event_id' => $event->id,
         ]);
 
-        \Log::channel('webhook')->info('MoySklad webhook processed', [
+        \Log::info('MoySklad webhook processed', [
             'bot_id' => $bot->id,
             'event_type' => $eventType,
         ]);

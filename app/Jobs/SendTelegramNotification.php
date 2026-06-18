@@ -44,7 +44,7 @@ class SendTelegramNotification implements ShouldQueue
                     'sent_at' => now(),
                 ]);
 
-                Log::channel('telegram')->info('Message sent', [
+                Log::info('Message sent', [
                     'bot_uuid' => $bot->uuid,
                     'chat_id' => $chatId,
                     'notif_uuid' => $this->notification->uuid,
@@ -62,7 +62,7 @@ class SendTelegramNotification implements ShouldQueue
                 $this->fail(new \Exception('Telegram API error: ' . json_encode($response)));
             }
         } catch (\Exception $e) {
-            Log::channel('telegram')->error('Failed to send message', [
+            Log::error('Failed to send message', [
                 'bot_uuid' => $bot->uuid,
                 'chat_id' => $chatId,
                 'error' => $e->getMessage(),

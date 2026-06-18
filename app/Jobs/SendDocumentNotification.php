@@ -56,7 +56,7 @@ class SendDocumentNotification implements ShouldQueue
                 'sent_at' => now(),
             ]);
 
-            Log::channel('telegram')->info('Document notification sent', [
+            Log::info('Document notification sent', [
                 'webhook_event_id' => $event->id,
                 'bot_client_id' => $botClient->id,
                 'chat_id' => $chatId,

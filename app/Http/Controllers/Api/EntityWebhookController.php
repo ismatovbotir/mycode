@@ -22,7 +22,7 @@ class EntityWebhookController extends Controller
         $webhook = $payload['webhook'] ?? [];
         $documentUrl = $webhook['meta']['href'] ?? null;
 
-        Log::channel('webhook')->info('МойСклад webhook received', [
+        Log::info('МойСклад webhook received', [
             'user_entity_id' => $user_entity->id,
             'event_type' => $user_entity->entity->type,
             'action' => $user_entity->action,

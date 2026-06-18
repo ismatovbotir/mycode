@@ -22,8 +22,7 @@ class ProcessPendingWebhooks extends Command
         PhoneMatchingService $phoneService,
         TelegramService $telegramService,
         DeveloperNotificationService $notifier
-    ): int
-    {
+    ): int {
         $limit = (int) $this->option('limit');
 
         $this->info("Processing pending webhooks (max: {$limit})...");
@@ -50,7 +49,7 @@ class ProcessPendingWebhooks extends Command
                     $this->line("Processing webhook: {$webhook->id}");
 
                     // Mark as processing
-                    $webhook->update(['status' => 'processing']);
+                    //$webhook->update(['status' => 'processing']);
 
                     // Fetch document from MoySkład
                     $document = $documentService->fetchDocument($webhook->document_url);
@@ -62,7 +61,7 @@ class ProcessPendingWebhooks extends Command
                     $phone = $documentService->extractCounterpartyPhone($document);
                     if (!$phone) {
                         // Keep status as 'processing' and notify developer with document details
-                        Log::channel('webhook')->warning('No phone found in document', [
+                        Log::warning('No phone found in document', [
                             'webhook_id' => $webhook->id,
                             'entity_type' => $webhook->entity_type,
                             'document_id' => $webhook->document_id,
@@ -96,7 +95,7 @@ class ProcessPendingWebhooks extends Command
                     $botClient = $phoneService->findBotClientByPhone($phone, $webhook->bot_id);
                     if (!$botClient) {
                         // Keep status as 'processing' and notify developer
-                        Log::channel('webhook')->warning('No matching bot client found', [
+                        Log::warning('No matching bot client found', [
                             'webhook_id' => $webhook->id,
                             'entity_type' => $webhook->entity_type,
                             'phone' => $phone,
@@ -150,9 +149,8 @@ class ProcessPendingWebhooks extends Command
 
                     $processed++;
                     $this->line("  ✓ Processed successfully");
-
                 } catch (\Exception $e) {
-                    Log::channel('webhook')->error('Webhook processing failed', [
+                    Log::error('Webhook processing failed', [
                         'webhook_id' => $webhook->id,
                         'error' => $e->getMessage(),
                         'trace' => $e->getTraceAsString(),
@@ -175,7 +173,7 @@ class ProcessPendingWebhooks extends Command
                 }
             }
 
-            Log::channel('webhook')->info("Processed webhooks", [
+            Log::info("Processed webhooks", [
                 'total' => $count,
                 'processed' => $processed,
                 'failed' => $failed,
@@ -183,10 +181,9 @@ class ProcessPendingWebhooks extends Command
 
             $this->info("✓ Processed {$processed}, Failed {$failed}");
             return 0;
-
         } catch (\Exception $e) {
             $this->error("Error processing webhooks: {$e->getMessage()}");
-            Log::channel('webhook')->error('ProcessPendingWebhooks command failed', [
+            Log::error('ProcessPendingWebhooks command failed', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);

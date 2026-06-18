@@ -190,7 +190,7 @@ class DeveloperNotificationService
     private function send(string $message): void
     {
         if (!$this->botToken || !$this->developerId) {
-            Log::channel('telegram')->warning('Developer notification skipped - credentials not configured');
+            Log::warning('Developer notification skipped - credentials not configured');
             return;
         }
 
@@ -214,14 +214,14 @@ class DeveloperNotificationService
             curl_close($ch);
 
             if ($httpCode !== 200) {
-                Log::channel('telegram')->warning('Developer notification failed', [
+                Log::warning('Developer notification failed', [
                     'http_code' => $httpCode,
                     'response' => $response,
                     'message' => substr($message, 0, 100),
                 ]);
             }
         } catch (\Exception $e) {
-            Log::channel('telegram')->error('Error sending developer notification', [
+            Log::error('Error sending developer notification', [
                 'error' => $e->getMessage(),
             ]);
         }

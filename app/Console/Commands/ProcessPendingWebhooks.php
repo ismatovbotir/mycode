@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
-use App\Models\Integration;
 use App\Models\MoySkladWebhook;
 use App\Services\MoySkladDocumentService;
 use App\Services\PhoneMatchingService;
@@ -49,26 +48,16 @@ class ProcessPendingWebhooks extends Command
                 try {
                     $this->line("Processing webhook: {$webhook->id}");
 
-                    // Get user's MoySkład token from Integration
+                    // Get user's MoySkład token
                     if (!$webhook->user) {
                         throw new \Exception('Webhook has no associated user');
                     }
 
-                    $integration = Integration::where('type', 'moysklad')
-                        ->where('bot_id', $webhook->bot_id)
-                        ->first();
-
-                    if (!$integration) {
-                        throw new \Exception('User has no MoySkład integration configured');
+                    $token = $webhook->user->moysklad_token;
+                    if (!$token) {
+                        throw new \Exception('User has no MoySkład token configured');
                     }
 
-                    // credentials is cast as encrypted:json, so it's already an array
-                    $credentials = $integration->credentials;
-                    if (!is_array($credentials) || !isset($credentials['token'])) {
-                        throw new \Exception('MoySkład token not found in integration credentials');
-                    }
-
-                    $token = $credentials['token'];
                     $documentService = new MoySkladDocumentService($token);
 
                     // Fetch document from MoySkład

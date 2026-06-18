@@ -68,6 +68,7 @@ Route::middleware(['auth'])->group(function () {
     // Telegram Link Routes
     Route::get('/settings/telegram/generate-qr', [\App\Http\Controllers\SettingsController::class, 'generateTelegramLinkQrCode'])->name('settings.telegram.generate-qr');
     Route::get('/settings/telegram/check-link/{linkToken}', [\App\Http\Controllers\SettingsController::class, 'checkLinkStatus'])->name('settings.telegram.check-link');
+    Route::post('/settings/telegram/unlink', [\App\Http\Controllers\SettingsController::class, 'unlinkTelegram'])->name('settings.telegram.unlink');
 });
 
 // Super Admin Dashboard Routes

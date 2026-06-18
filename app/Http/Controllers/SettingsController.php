@@ -131,4 +131,20 @@ class SettingsController extends Controller
             'tg_chat_id' => $user->tg_chat_id,
         ]);
     }
+
+    public function unlinkTelegram()
+    {
+        $user = auth()->user();
+
+        $user->update([
+            'tg_chat_id' => null,
+            'tg_linked_at' => null,
+        ]);
+
+        Log::info('User unlinked Telegram account', [
+            'user_id' => $user->id,
+        ]);
+
+        return response()->json(['success' => true]);
+    }
 }

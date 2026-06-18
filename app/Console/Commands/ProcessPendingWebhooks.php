@@ -188,7 +188,7 @@ class ProcessPendingWebhooks extends Command
 
                     // Keep as processing so it can be retried
                     $webhook->update([
-                        'status' => 'recieved',
+                        'status' => 'processing',
                         'error_message' => $e->getMessage(),
                     ]);
 

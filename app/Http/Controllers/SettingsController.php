@@ -20,9 +20,11 @@ class SettingsController extends Controller
     public function index(): View
     {
         $user = auth()->user();
-        $integration = Integration::where('user_id', $user->id)
+        $bot = $user->bot;
+
+        $integration = $bot ? Integration::where('bot_id', $bot->id)
             ->where('type', 'moisklad')
-            ->first();
+            ->first() : null;
 
         $fields = IntegrationField::where('integration_type', 'moisklad')
             ->where('is_active', true)
@@ -57,7 +59,7 @@ class SettingsController extends Controller
 
         $integration = Integration::firstOrCreate(
             [
-                'user_id' => $user->id,
+                'bot_id' => $bot->id,
                 'type' => 'moisklad',
             ],
             [

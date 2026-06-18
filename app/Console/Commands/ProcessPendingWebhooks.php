@@ -174,11 +174,11 @@ class ProcessPendingWebhooks extends Command
                     $processed++;
                     $this->line("  ✓ Processed successfully");
                 } catch (\Exception $e) {
-                    Log::error('Webhook processing failed', [
-                        'webhook_id' => $webhook->id,
-                        'error' => $e->getMessage(),
-                        'trace' => $e->getTraceAsString(),
-                    ]);
+                    // Log::error('Webhook processing failed', [
+                    //     'webhook_id' => $webhook->id,
+                    //     'error' => $e->getMessage(),
+                    //     'trace' => $e->getTraceAsString(),
+                    // ]);
 
                     // Notify developer about error
                     $notifier->notifyDevelopment(
@@ -188,7 +188,7 @@ class ProcessPendingWebhooks extends Command
 
                     // Keep as processing so it can be retried
                     $webhook->update([
-                        'status' => 'processing',
+                        'status' => 'recieved',
                         'error_message' => $e->getMessage(),
                     ]);
 
@@ -197,11 +197,11 @@ class ProcessPendingWebhooks extends Command
                 }
             }
 
-            Log::info("Processed webhooks", [
-                'total' => $count,
-                'processed' => $processed,
-                'failed' => $failed,
-            ]);
+            // Log::info("Processed webhooks", [
+            //     'total' => $count,
+            //     'processed' => $processed,
+            //     'failed' => $failed,
+            // ]);
 
             $this->info("✓ Processed {$processed}, Failed {$failed}");
             return 0;

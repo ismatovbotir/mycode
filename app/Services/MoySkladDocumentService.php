@@ -66,7 +66,7 @@ class MoySkladDocumentService
 
         // Translate document type
         $docTypeLabels = [
-            'uz' => ['demand' => 'Chiqib ketish', 'supply' => 'Qabul'],
+            'uz' => ['demand' => 'Sotib olish', 'supply' => 'Sotish'],
             'en' => ['demand' => 'Demand', 'supply' => 'Supply'],
             'ru' => ['demand' => 'Спрос', 'supply' => 'Приход'],
         ];

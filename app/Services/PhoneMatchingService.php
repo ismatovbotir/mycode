@@ -11,7 +11,9 @@ class PhoneMatchingService
 {
     public function normalizePhone(string $phone): string
     {
-        return preg_replace('/\D/', '', $phone);
+        // Remove all non-digits, then take last 10 digits (local number)
+        $digits = preg_replace('/\D/', '', $phone);
+        return substr($digits, -10);
     }
 
     public function findBotClientByPhone(string $phone, string $botId): ?BotClient

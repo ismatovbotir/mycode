@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Webhook;
 
 use App\Models\MoySkladWebhook;
 use App\Models\UserEntity;
+use App\Jobs\ProcessMoySkladWebhook;
 use App\Services\DeveloperNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -54,29 +55,9 @@ class EntityWebhookController
             // Mark as processing
             $webhook->markProcessing();
 
-            // Process webhook based on entity type
-            switch ($entityType) {
-                case 'demand':
-                    $this->processDemand($webhook, $documentUrl, $documentId);
-                    break;
-                case 'supply':
-                    $this->processSupply($webhook, $documentUrl, $documentId);
-                    break;
-                case 'invoice':
-                    $this->processInvoice($webhook, $documentUrl, $documentId);
-                    break;
-                case 'paymentin':
-                    $this->processPaymentIn($webhook, $documentUrl, $documentId);
-                    break;
-                case 'paymentout':
-                    $this->processPaymentOut($webhook, $documentUrl, $documentId);
-                    break;
-                case 'salesreturn':
-                    $this->processSalesReturn($webhook, $documentUrl, $documentId);
-                    break;
-            }
-
-            $webhook->markProcessed();
+            // Dispatch job to process webhook asynchronously
+            ProcessMoySkladWebhook::dispatch($webhook)
+                ->onQueue('default');
 
 
 
@@ -97,53 +78,5 @@ class EntityWebhookController
 
             return response()->json(['error' => $e->getMessage()], 400);
         }
-    }
-
-    private function processDemand(MoySkladWebhook $webhook, string $documentUrl, string $documentId): void
-    {
-        // TODO: Fetch demand from MoySkład API
-        // TODO: Extract counterparty phone
-        // TODO: Find matching bot_client
-        // TODO: Send Telegram notification
-    }
-
-    private function processSupply(MoySkladWebhook $webhook, string $documentUrl, string $documentId): void
-    {
-        // TODO: Fetch supply from MoySkład API
-        // TODO: Extract counterparty phone
-        // TODO: Find matching bot_client
-        // TODO: Send Telegram notification
-    }
-
-    private function processInvoice(MoySkladWebhook $webhook, string $documentUrl, string $documentId): void
-    {
-        // TODO: Fetch invoice from MoySkład API
-        // TODO: Extract counterparty phone
-        // TODO: Find matching bot_client
-        // TODO: Send Telegram notification
-    }
-
-    private function processPaymentIn(MoySkladWebhook $webhook, string $documentUrl, string $documentId): void
-    {
-        // TODO: Fetch incoming payment from MoySkład API
-        // TODO: Extract counterparty phone
-        // TODO: Find matching bot_client
-        // TODO: Send Telegram notification
-    }
-
-    private function processPaymentOut(MoySkladWebhook $webhook, string $documentUrl, string $documentId): void
-    {
-        // TODO: Fetch outgoing payment from MoySkład API
-        // TODO: Extract counterparty phone
-        // TODO: Find matching bot_client
-        // TODO: Send Telegram notification
-    }
-
-    private function processSalesReturn(MoySkladWebhook $webhook, string $documentUrl, string $documentId): void
-    {
-        // TODO: Fetch sales return from MoySkład API
-        // TODO: Extract counterparty phone
-        // TODO: Find matching bot_client
-        // TODO: Send Telegram notification
     }
 }

@@ -26,7 +26,7 @@ class PhoneMatchingService
 
         return BotClient::where('bot_id', $botId)
             ->whereHas('tgUser', function ($query) use ($normalizedPhone) {
-                $query->where('phone', $normalizedPhone);
+                $query->where('phone', 'like', '%' . $normalizedPhone . '%');
             })
             ->first();
     }
@@ -39,6 +39,6 @@ class PhoneMatchingService
             return null;
         }
 
-        return TgUser::where('phone', $normalizedPhone)->first();
+        return TgUser::where('phone', 'like', '%' . $normalizedPhone . '%')->first();
     }
 }
